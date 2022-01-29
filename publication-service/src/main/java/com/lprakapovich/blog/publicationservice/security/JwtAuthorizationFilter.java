@@ -6,8 +6,8 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -17,6 +17,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 
 @Component
 @Slf4j
@@ -34,9 +35,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         try {
             if (authHeaderIsPresent(request)) {
                 String token = getTokenFromRequest(request);
-                ResponseEntity<?> responseEntity = authorizationClient.validateToken(token);
-                if (response.getStatus() == 200) {
-                    log.error("TOKEN OK!!");
+                ResponseEntity<String> responseEntity = authorizationClient.validateToken(token);
+                if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
+                    setAuthentication(responseEntity.getBody());
                 } else {
                     log.error("TOKEN DID NOT PASS VALIDATION");
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -53,6 +54,11 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
             return;
         }
+    }
+
+    private void setAuthentication(String subject) {
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(subject, null, new ArrayList<>());
+        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
     private String getTokenFromRequest(HttpServletRequest request) {

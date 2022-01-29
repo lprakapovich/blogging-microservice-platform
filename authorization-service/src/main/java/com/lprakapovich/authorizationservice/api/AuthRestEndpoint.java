@@ -6,6 +6,8 @@ import com.lprakapovich.authorizationservice.api.dto.RegisterDto;
 import com.lprakapovich.authorizationservice.exception.JwtException;
 import com.lprakapovich.authorizationservice.jwt.JwtUtil;
 import com.lprakapovich.authorizationservice.service.AuthService;
+import io.jsonwebtoken.ClaimJwtException;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,10 +40,12 @@ public class AuthRestEndpoint {
     }
 
     @PostMapping("/validate")
-    ResponseEntity<?> validateToken(@RequestParam String token) {
+    ResponseEntity<String> validateToken(@RequestParam String token) {
+        // TODO handle builtin exceptions thrown during claims resolution
         if (!jwtUtil.isTokenValid(token)) {
             throw new JwtException(INVALID);
         }
-        return ResponseEntity.ok().build();
+        Claims userClaims = jwtUtil.getAllClaimsFromToken(token);
+        return ResponseEntity.ok(userClaims.getSubject());
     }
 }

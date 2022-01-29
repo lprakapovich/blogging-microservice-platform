@@ -12,5 +12,5 @@ import org.springframework.web.bind.annotation.*;
 public interface AuthorizationClient {
 
     @PostMapping("/auth/validate")
-    ResponseEntity<?> validateToken(@RequestParam String token);
+    ResponseEntity<String> validateToken(@RequestParam String token);
 }

@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/publications")
@@ -15,9 +16,9 @@ public class PublicationRestEndpoint {
 
     private final PublicationService publicationService;
 
-    @GetMapping("/{id}")
-    ResponseEntity<Void> getPublication(@RequestHeader("Authorizaion") String auth, @PathVariable Long id) {
-
+    @GetMapping()
+    ResponseEntity<Void> getPublication(Principal principal) {
+        String username = principal.getName();
         return ResponseEntity.ok().build();
     }
 
