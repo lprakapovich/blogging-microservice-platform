@@ -1,8 +1,6 @@
 package com.lprakapovich.blog.publicationservice.repository;
 
-import com.lprakapovich.blog.publicationservice.domain.Publication;
-import com.lprakapovich.blog.publicationservice.domain.Status;
-import org.springframework.data.domain.Pageable;
+import com.lprakapovich.blog.publicationservice.model.Publication;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 import java.util.Optional;

@@ -1,4 +1,4 @@
-package com.lprakapovich.blog.publicationservice.domain;
+package com.lprakapovich.blog.publicationservice.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

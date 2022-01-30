@@ -1,4 +1,4 @@
-package com.lprakapovich.blog.publicationservice.domain;
+package com.lprakapovich.blog.publicationservice.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,6 +22,6 @@ public class Publication {
     private Blog blog;
 
     @ManyToOne
-    @JoinColumn(name = "category_id")
+    @JoinColumn
     private Category category;
 }

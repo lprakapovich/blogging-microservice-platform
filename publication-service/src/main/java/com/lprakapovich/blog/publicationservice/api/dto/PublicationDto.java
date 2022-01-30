@@ -1,6 +1,6 @@
 package com.lprakapovich.blog.publicationservice.api.dto;
 
-import com.lprakapovich.blog.publicationservice.domain.Category;
+import com.lprakapovich.blog.publicationservice.model.Category;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;

@@ -1,4 +1,4 @@
-package com.lprakapovich.blog.publicationservice.domain;
+package com.lprakapovich.blog.publicationservice.model;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

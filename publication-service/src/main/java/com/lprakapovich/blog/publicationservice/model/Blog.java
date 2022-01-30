@@ -1,4 +1,4 @@
-package com.lprakapovich.blog.publicationservice.domain;
+package com.lprakapovich.blog.publicationservice.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Entity
@@ -19,7 +20,8 @@ import java.util.List;
 public class Blog {
 
     @Id
-    private long id;
+    private String id;
+
     private String description;
     private Instant creationDate;
 
@@ -29,6 +31,8 @@ public class Blog {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "blog_id")
     private List<Category> categories = new ArrayList<>();
+
+
 
 //    @OneToMany(cascade = CascadeType.ALL, mappedBy = "blog")
 //    @JoinColumn(name = "blog_id")
