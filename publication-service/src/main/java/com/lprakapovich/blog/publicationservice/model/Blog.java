@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 @Entity
@@ -31,8 +30,6 @@ public class Blog {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "blog_id")
     private List<Category> categories = new ArrayList<>();
-
-
 
 //    @OneToMany(cascade = CascadeType.ALL, mappedBy = "blog")
 //    @JoinColumn(name = "blog_id")

@@ -1,14 +1,21 @@
 package com.lprakapovich.blog.publicationservice.api;
 
-import com.lprakapovich.blog.publicationservice.api.dto.PublicationDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lprakapovich.blog.publicationservice.model.Publication;
+import com.lprakapovich.blog.publicationservice.service.BlogService;
 import com.lprakapovich.blog.publicationservice.service.PublicationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
-import java.security.Principal;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.lprakapovich.blog.publicationservice.util.BlogIdResolver.resolveBlogIdFromPrincipal;
 
 @RestController
 @RequestMapping("/publications")
@@ -16,16 +23,84 @@ import java.security.Principal;
 class PublicationRestEndpoint {
 
     private final PublicationService publicationService;
-
-    @GetMapping()
-    ResponseEntity<Void> getPublication(Principal principal) {
-
-        String username = principal.getName();
-        return ResponseEntity.ok().build();
-    }
+    private final BlogService blogService;
+    private final ObjectMapper objectMapper;
 
     @PostMapping
-    ResponseEntity<URI> createPublication(@Valid @RequestBody PublicationDto publicationDto) {
-        return ResponseEntity.ok().build();
+    public ResponseEntity<URI> createPublication(@Valid @RequestBody PublicationDto publicationDto) {
+        String blogId = resolveBlogId();
+        Publication publication = map(publicationDto);
+        long publicationId = publicationService.createPublication(publication, blogId);
+        return ResponseEntity.created(URI.create(String.valueOf(publicationId))).build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<PublicationDto>> getPublications() {
+        String blogId = resolveBlogId();
+        List<Publication> publications = publicationService.getAllByBlogId(blogId);
+        return ResponseEntity.ok(map(publications));
+    }
+
+    @GetMapping("/pageable")
+    public ResponseEntity<List<PublicationDto>> getPublications(@RequestParam(defaultValue = "0") int page,
+                                                                @RequestParam(defaultValue = "3") int size) {
+        String blogId = resolveBlogId();
+        Pageable paging = PageRequest.of(page, size);
+
+        List<Publication> publications = publicationService.getAllByBlogId(blogId, paging);
+        return ResponseEntity.ok(map(publications));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PublicationDto> getPublication(@PathVariable long id) {
+        String blogId = resolveBlogId();
+        Publication publication = publicationService.getById(id, blogId);
+        PublicationDto publicationDto = map(publication);
+        return ResponseEntity.ok(publicationDto);
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> deletePublication(@PathVariable long id) {
+        String blogId = resolveBlogId();
+        publicationService.deleteById(id, blogId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/{categoryId}")
+    public ResponseEntity<PublicationDto> assignPublicationToCategory(@PathVariable(value = "id") long publicationId, @PathVariable long categoryId) {
+        String blogId = resolveBlogId();
+        Publication updatedPublication = publicationService.assignPublicationToCategory(blogId, publicationId, categoryId);
+        PublicationDto updatedPublicationDto = map(updatedPublication);
+        return ResponseEntity.ok().body(updatedPublicationDto);
+    }
+
+    @DeleteMapping("/{id}/{categoryId}")
+    public ResponseEntity<PublicationDto> unassignPublicationFromCategory(@PathVariable(value = "id") long publicationId, @PathVariable long categoryId) {
+        String blogId = resolveBlogId();
+        Publication updatedPublication = publicationService.unassignPublicationFromCategory(blogId, publicationId, categoryId);
+        PublicationDto updatedPublicationDto = map(updatedPublication);
+        return ResponseEntity.ok().body(updatedPublicationDto);
+    }
+
+    // TODO instead of resolving blogId each time, add interceptor to compare values from path and token
+    private String resolveBlogId() {
+        String blogId = resolveBlogIdFromPrincipal();
+        blogService.validateExistence(blogId);
+        return blogId;
+    }
+
+    private List<PublicationDto> map(List<Publication> publications) {
+        return publications
+                .stream()
+                .map(p -> objectMapper.convertValue(p, PublicationDto.class))
+                .collect(Collectors.toList());
+    }
+
+    private PublicationDto map(Publication publication) {
+        return objectMapper.convertValue(publication, PublicationDto.class);
+    }
+
+    private Publication map(PublicationDto publicationDto) {
+        return objectMapper.convertValue(publicationDto, Publication.class);
     }
 }

@@ -1,16 +1,14 @@
 package com.lprakapovich.blog.publicationservice.model;
 
 import lombok.Data;
-import lombok.Generated;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.io.Serializable;
 
 @Entity
-//@Table(name = "categories")
 @Table(name = "categories",
-        uniqueConstraints = @UniqueConstraint(name = "CategoryNamePerBlogConstraint", columnNames = {"name", "blog_id"})
+        uniqueConstraints = @UniqueConstraint(name = "CategoryNamePerBlogConstraint", columnNames = {"name", "blog_id"}),
+        indexes = @Index(name = "categoryId_blogId_index", columnList = "id, blog_id")
 )
 @Data
 @NoArgsConstructor
