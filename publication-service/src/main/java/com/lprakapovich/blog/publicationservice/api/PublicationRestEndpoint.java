@@ -6,7 +6,6 @@ import com.lprakapovich.blog.publicationservice.service.BlogService;
 import com.lprakapovich.blog.publicationservice.service.PublicationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +25,7 @@ class PublicationRestEndpoint {
     private final BlogService blogService;
     private final ObjectMapper objectMapper;
 
+
     @PostMapping
     public ResponseEntity<URI> createPublication(@Valid @RequestBody PublicationDto publicationDto) {
         String blogId = resolveBlogId();
@@ -34,29 +34,27 @@ class PublicationRestEndpoint {
         return ResponseEntity.created(URI.create(String.valueOf(publicationId))).build();
     }
 
-    @GetMapping
-    public ResponseEntity<List<PublicationDto>> getPublications() {
-        String blogId = resolveBlogId();
-        List<Publication> publications = publicationService.getAllByBlogId(blogId);
-        return ResponseEntity.ok(map(publications));
-    }
-
-    @GetMapping("/pageable")
-    public ResponseEntity<List<PublicationDto>> getPublications(@RequestParam(defaultValue = "0") int page,
-                                                                @RequestParam(defaultValue = "3") int size) {
-        String blogId = resolveBlogId();
-        Pageable paging = PageRequest.of(page, size);
-
-        List<Publication> publications = publicationService.getAllByBlogId(blogId, paging);
-        return ResponseEntity.ok(map(publications));
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<PublicationDto> getPublication(@PathVariable long id) {
-        String blogId = resolveBlogId();
-        Publication publication = publicationService.getById(id, blogId);
+        Publication publication = publicationService.getById(id, resolveBlogId());
         PublicationDto publicationDto = map(publication);
         return ResponseEntity.ok(publicationDto);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<PublicationDto>> getPublications(@RequestParam(defaultValue = "0") int page,
+                                                                @RequestParam(defaultValue = "3") int size) {
+        List<Publication> publications = publicationService.getAllByBlogId(resolveBlogId(), PageRequest.of(page, size));
+        return ResponseEntity.ok(map(publications));
+    }
+
+    // TODO add sorting by publicationDate
+    @GetMapping("/subscribed")
+    public ResponseEntity<List<PublicationDto>> getPublicationsFromSubscriptions(@RequestParam(defaultValue = "0") int page,
+                                                                                 @RequestParam(defaultValue = "3") int size) {
+        String blogId = resolveBlogId();
+        List<Publication> publications = publicationService.getPublicationsFromSubscriptions(blogId, PageRequest.of(page, size));
+        return ResponseEntity.ok(map(publications));
     }
 
     @DeleteMapping("{id}")

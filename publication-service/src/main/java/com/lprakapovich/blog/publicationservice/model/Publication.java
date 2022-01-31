@@ -21,7 +21,7 @@ public class Publication {
     private String subHeader;
     private Status status;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "blog_id")
     private Blog blog;
 

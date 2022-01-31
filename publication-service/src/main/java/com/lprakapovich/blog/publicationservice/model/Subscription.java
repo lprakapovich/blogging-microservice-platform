@@ -1,5 +1,6 @@
 package com.lprakapovich.blog.publicationservice.model;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -9,13 +10,14 @@ import javax.persistence.Entity;
 import java.io.Serializable;
 
 @Entity
+@Data
 @NoArgsConstructor
 public class Subscription {
 
     @EmbeddedId
     SubscriptionId id;
 
-    public Subscription(long blogId, long subscriberBlogId) {
+    public Subscription(String blogId, String subscriberBlogId) {
         this.id = new SubscriptionId(blogId, subscriberBlogId);
     }
 
@@ -23,12 +25,12 @@ public class Subscription {
     @Getter
     public static class SubscriptionId implements Serializable {
 
-        private long blogId;
-        private long subscriberBlogId;
+        private String blogId;
+        private String subscriberBlogId;
 
         protected SubscriptionId() { }
 
-        public SubscriptionId(long blogId, long subscriberBlogId) {
+        public SubscriptionId(String blogId, String subscriberBlogId) {
             this.blogId = blogId;
             this.subscriberBlogId = subscriberBlogId;
         }

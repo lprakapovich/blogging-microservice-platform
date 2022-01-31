@@ -6,11 +6,11 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-class SubscriptionDto {
+public class SubscriberDto {
 
-    @NotBlank(message = "Subscription blog id cannot be blank")
-    private String subscriptionTargetBlogId;
+    @NotBlank(message = "Subscriber blog id cannot be blank")
+    private String subscriberBlogId;
 }

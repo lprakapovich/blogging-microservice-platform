@@ -1,24 +1,26 @@
 package com.lprakapovich.blog.publicationservice.service;
 
 import com.lprakapovich.blog.publicationservice.exception.PublicationNotFoundException;
-import com.lprakapovich.blog.publicationservice.model.Blog;
-import com.lprakapovich.blog.publicationservice.model.Category;
-import com.lprakapovich.blog.publicationservice.model.Publication;
+import com.lprakapovich.blog.publicationservice.model.*;
 import com.lprakapovich.blog.publicationservice.repository.PublicationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PublicationService {
 
     private final PublicationRepository publicationRepository;
+
     private final BlogService blogService;
     private final CategoryService categoryService;
+    private final SubscriptionService subscriptionService;
 
     public Publication getById(long id, String blogId) {
         return publicationRepository.findByIdAndBlog_Id(id, blogId).orElseThrow(PublicationNotFoundException::new);
@@ -71,5 +73,14 @@ public class PublicationService {
         if (!publicationRepository.existsByIdAndBlog_Id(id, blogId)) {
             throw new PublicationNotFoundException();
         }
+    }
+
+    // add status handling
+    public List<Publication> getPublicationsFromSubscriptions(String blogId, PageRequest p) {
+        List<String> subscriptionsIds = subscriptionService.getAllSubscriptions(blogId)
+                .stream()
+                .map(subscription -> subscription.getId().getBlogId())
+                .collect(Collectors.toList());
+        return publicationRepository.findAllByBlog_IdIn(subscriptionsIds, p);
     }
 }
