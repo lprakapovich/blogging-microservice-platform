@@ -49,15 +49,15 @@ class PublicationRestEndpoint {
                                                                 @RequestParam(required = false) Status status,
                                                                 @RequestParam(required = false) Long categoryId) {
         String blogId = resolveBlogId();
-        PageRequest p = PageRequest.of(page, size, Sort.by("createdDateTime").descending());
+        PageRequest pageable = PageRequest.of(page, size, Sort.by("createdDateTime").descending());
         List<Publication> publications;
 
         if (Objects.nonNull(status)) {
-            publications = publicationService.getAllByBlogIdAndStatus(blogId, status, p);
+            publications = publicationService.getAllByBlogIdAndStatus(blogId, status, pageable);
         } else if (Objects.nonNull(categoryId)) {
-            publications = publicationService.getAllByBlogIdAndCategory(blogId, categoryId, p);
+            publications = publicationService.getAllByBlogIdAndCategory(blogId, categoryId, pageable);
         } else {
-            publications = publicationService.getAllByBlogId(blogId, p);
+            publications = publicationService.getAllByBlogId(blogId, pageable);
         }
         return ResponseEntity.ok(map(publications));
     }
@@ -67,7 +67,8 @@ class PublicationRestEndpoint {
     public ResponseEntity<List<PublicationDto>> getPublicationsFromSubscriptions(@RequestParam(defaultValue = "0") int page,
                                                                                  @RequestParam(defaultValue = "3") int size) {
         String blogId = resolveBlogId();
-        List<Publication> publications = publicationService.getPublicationsFromSubscriptions(blogId, PageRequest.of(page, size));
+        PageRequest pageable = PageRequest.of(page, size, Sort.by("createdDateTime").descending());
+        List<Publication> publications = publicationService.getPublicationsFromSubscriptions(blogId, pageable);
         return ResponseEntity.ok(map(publications));
     }
 
