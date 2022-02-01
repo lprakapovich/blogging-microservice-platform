@@ -1,12 +1,11 @@
 package com.lprakapovich.authorizationservice.api;
 
-import com.lprakapovich.authorizationservice.api.dto.LoginDto;
 import com.lprakapovich.authorizationservice.api.dto.AuthResponse;
+import com.lprakapovich.authorizationservice.api.dto.LoginDto;
 import com.lprakapovich.authorizationservice.api.dto.RegisterDto;
 import com.lprakapovich.authorizationservice.exception.JwtException;
 import com.lprakapovich.authorizationservice.jwt.JwtUtil;
 import com.lprakapovich.authorizationservice.service.AuthService;
-import io.jsonwebtoken.ClaimJwtException;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
