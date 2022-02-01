@@ -1,7 +1,9 @@
 package com.lprakapovich.blog.publicationservice.repository;
 
+import com.lprakapovich.blog.publicationservice.model.Category;
 import com.lprakapovich.blog.publicationservice.model.Publication;
 import com.lprakapovich.blog.publicationservice.model.Status;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
@@ -19,20 +21,13 @@ public interface PublicationRepository extends PagingAndSortingRepository<Public
     // TODO add sorting
     List<Publication> findAllByBlog_IdInAndStatus(List<String> ids, Status status, Pageable pageable);
 
+    List<Publication> findAllByBlog_IdAndStatus(String blogId, Status status, Pageable p);
+
+    List<Publication> findAllByBlog_IdAndCategory_Id(String id, long categoryId, Pageable pageable);
+
     List<Publication> findAllByBlog_IdIn(List<String> ids, Pageable pageable);
 
     List<Publication> findByCategory_IdAndBlog_Id(long categoryId, String blogId);
 
     boolean existsByIdAndBlog_Id(long publicationId, String blogId);
-
-//
-//    List<Publication> findByCategory_Name(String category);
-//
-//    List<Publication> findByCategory_Name(String category, Pageable pageable);
-//
-//    List<Publication> findByBlog_IdAndPublicationStatus(String id, Status status);
-//
-//    List<Publication> findByBlog_IdAndPublicationStatus(String id, Status status, Pageable pageable);
-//
-//    List<Publication> findByPublicationStatus(Status status);
 }

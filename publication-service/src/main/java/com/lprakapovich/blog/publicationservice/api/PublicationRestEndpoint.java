@@ -2,16 +2,19 @@ package com.lprakapovich.blog.publicationservice.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lprakapovich.blog.publicationservice.model.Publication;
+import com.lprakapovich.blog.publicationservice.model.Status;
 import com.lprakapovich.blog.publicationservice.service.BlogService;
 import com.lprakapovich.blog.publicationservice.service.PublicationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.lprakapovich.blog.publicationservice.util.BlogIdResolver.resolveBlogIdFromPrincipal;
@@ -24,7 +27,6 @@ class PublicationRestEndpoint {
     private final PublicationService publicationService;
     private final BlogService blogService;
     private final ObjectMapper objectMapper;
-
 
     @PostMapping
     public ResponseEntity<URI> createPublication(@Valid @RequestBody PublicationDto publicationDto) {
@@ -43,13 +45,25 @@ class PublicationRestEndpoint {
 
     @GetMapping
     public ResponseEntity<List<PublicationDto>> getPublications(@RequestParam(defaultValue = "0") int page,
-                                                                @RequestParam(defaultValue = "3") int size) {
-        List<Publication> publications = publicationService.getAllByBlogId(resolveBlogId(), PageRequest.of(page, size));
+                                                                @RequestParam(defaultValue = "3") int size,
+                                                                @RequestParam(required = false) Status status,
+                                                                @RequestParam(required = false) Long categoryId) {
+        String blogId = resolveBlogId();
+        PageRequest p = PageRequest.of(page, size, Sort.by("createdDateTime").descending());
+        List<Publication> publications;
+
+        if (Objects.nonNull(status)) {
+            publications = publicationService.getAllByBlogIdAndStatus(blogId, status, p);
+        } else if (Objects.nonNull(categoryId)) {
+            publications = publicationService.getAllByBlogIdAndCategory(blogId, categoryId, p);
+        } else {
+            publications = publicationService.getAllByBlogId(blogId, p);
+        }
         return ResponseEntity.ok(map(publications));
     }
 
     // TODO add sorting by publicationDate
-    @GetMapping("/subscribed")
+    @GetMapping("/subscriptions")
     public ResponseEntity<List<PublicationDto>> getPublicationsFromSubscriptions(@RequestParam(defaultValue = "0") int page,
                                                                                  @RequestParam(defaultValue = "3") int size) {
         String blogId = resolveBlogId();

@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -75,12 +76,19 @@ public class PublicationService {
         }
     }
 
-    // add status handling
     public List<Publication> getPublicationsFromSubscriptions(String blogId, PageRequest p) {
         List<String> subscriptionsIds = subscriptionService.getAllSubscriptions(blogId)
                 .stream()
                 .map(subscription -> subscription.getId().getBlogId())
                 .collect(Collectors.toList());
         return publicationRepository.findAllByBlog_IdIn(subscriptionsIds, p);
+    }
+
+    public List<Publication> getAllByBlogIdAndStatus(String blogId, Status status, PageRequest p) {
+        return publicationRepository.findAllByBlog_IdAndStatus(blogId, status, p);
+    }
+
+    public List<Publication> getAllByBlogIdAndCategory(String blogId, long categoryId, PageRequest p) {
+        return publicationRepository.findAllByBlog_IdAndCategory_Id(blogId, categoryId, p);
     }
 }

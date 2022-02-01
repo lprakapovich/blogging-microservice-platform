@@ -1,6 +1,7 @@
 package com.lprakapovich.blog.publicationservice.model;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -23,6 +24,7 @@ public class Subscription {
 
     @Embeddable
     @Getter
+    @EqualsAndHashCode
     public static class SubscriptionId implements Serializable {
 
         private String blogId;
