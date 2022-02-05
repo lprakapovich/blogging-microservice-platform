@@ -7,7 +7,7 @@ import javax.validation.constraints.NotBlank;
 
 @Data
 @AllArgsConstructor
-public class AuthResponse {
+public class AuthDto {
 
     @NotBlank(message = "Token cannot be empty")
     private String token;

@@ -1,10 +1,12 @@
 package com.lprakapovich.authorizationservice.api;
 
-import com.lprakapovich.authorizationservice.api.dto.AuthResponse;
+import com.lprakapovich.authorizationservice.api.dto.AuthDto;
 import com.lprakapovich.authorizationservice.api.dto.LoginDto;
 import com.lprakapovich.authorizationservice.api.dto.RegisterDto;
 import com.lprakapovich.authorizationservice.exception.JwtException;
+import com.lprakapovich.authorizationservice.feign.UserClient;
 import com.lprakapovich.authorizationservice.jwt.JwtUtil;
+import com.lprakapovich.authorizationservice.security.ApplicationPasswordEncoder;
 import com.lprakapovich.authorizationservice.service.AuthService;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
@@ -21,21 +23,26 @@ import static com.lprakapovich.authorizationservice.exception.JwtException.Cause
 @RequiredArgsConstructor
 public class AuthRestEndpoint {
 
+    private final UserClient userClient;
     private final AuthService authService;
     private final JwtUtil jwtUtil;
+    private final ApplicationPasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
-    ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginDto request) {
+    ResponseEntity<AuthDto> login(@Valid @RequestBody LoginDto request) {
         authService.authenticate(request.getUsername(), request.getPassword());
         String token = jwtUtil.generateToken(request.getUsername());
-        return ResponseEntity.ok(new AuthResponse(token));
+        return ResponseEntity.ok(new AuthDto(token));
     }
 
     @PostMapping(value = "/register")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterDto request) {
-        URI createdResourceLocation = authService.register(request);
+    public ResponseEntity<AuthDto> register(@Valid @RequestBody RegisterDto request) {
+        request.setPassword(encrypt(request.getPassword()));
+        ResponseEntity<?> userCreatedResponse = userClient.createUser(request);
+        URI createdResourceLocation = userCreatedResponse.getHeaders().getLocation();
         String token = jwtUtil.generateToken(request.getUsername());
-        return ResponseEntity.created(createdResourceLocation).body(new AuthResponse(token));
+        assert createdResourceLocation != null;
+        return ResponseEntity.created(createdResourceLocation).body(new AuthDto(token));
     }
 
     @PostMapping("/validate")
@@ -46,5 +53,9 @@ public class AuthRestEndpoint {
         }
         Claims userClaims = jwtUtil.getAllClaimsFromToken(token);
         return ResponseEntity.ok(userClaims.getSubject());
+    }
+
+    private String encrypt(String password) {
+        return passwordEncoder.toEncryptedPassword(password);
     }
 }
