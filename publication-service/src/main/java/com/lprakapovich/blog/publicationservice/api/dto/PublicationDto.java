@@ -1,7 +1,8 @@
-package com.lprakapovich.blog.publicationservice.api;
+package com.lprakapovich.blog.publicationservice.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lprakapovich.blog.publicationservice.model.Category;
+import com.lprakapovich.blog.publicationservice.model.Content;
 import com.lprakapovich.blog.publicationservice.model.Status;
 import lombok.Data;
 
@@ -10,7 +11,7 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Data
-class PublicationDto {
+public class PublicationDto {
 
     private long id;
 
@@ -19,6 +20,7 @@ class PublicationDto {
 
     private String subHeader;
 
+    // TODO use dto
     private Category category;
 
     @NotNull(message = "Publication must have an assigned status")
@@ -27,6 +29,6 @@ class PublicationDto {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime createdDateTime;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-    private LocalDateTime lastUpdateDateTime;
+    // TODO use dto
+    private Content content;
 }

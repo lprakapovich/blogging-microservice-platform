@@ -1,5 +1,7 @@
 package com.lprakapovich.blog.publicationservice.api;
 
+import com.lprakapovich.blog.publicationservice.api.dto.SubscriberDto;
+import com.lprakapovich.blog.publicationservice.api.dto.SubscriptionDto;
 import com.lprakapovich.blog.publicationservice.model.Subscription;
 import com.lprakapovich.blog.publicationservice.service.BlogService;
 import com.lprakapovich.blog.publicationservice.service.SubscriptionService;

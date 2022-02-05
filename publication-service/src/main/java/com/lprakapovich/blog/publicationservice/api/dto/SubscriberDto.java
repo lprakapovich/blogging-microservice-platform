@@ -1,4 +1,4 @@
-package com.lprakapovich.blog.publicationservice.api;
+package com.lprakapovich.blog.publicationservice.api.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

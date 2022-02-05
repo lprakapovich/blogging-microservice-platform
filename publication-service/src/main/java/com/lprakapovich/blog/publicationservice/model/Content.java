@@ -5,12 +5,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Data
-public class ContentElement implements Serializable {
+public class Content implements Serializable {
 
-    private ContentType contentType;
-    private String contentElementSource;
+   private List<ContentElement> contentElements = new ArrayList<>();
 }
+

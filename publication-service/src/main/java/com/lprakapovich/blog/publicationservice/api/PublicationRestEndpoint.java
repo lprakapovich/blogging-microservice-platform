@@ -1,6 +1,8 @@
 package com.lprakapovich.blog.publicationservice.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lprakapovich.blog.publicationservice.api.dto.PublicationDto;
+import com.lprakapovich.blog.publicationservice.api.dto.UpdatePublicationDto;
 import com.lprakapovich.blog.publicationservice.model.Publication;
 import com.lprakapovich.blog.publicationservice.model.Status;
 import com.lprakapovich.blog.publicationservice.service.BlogService;
@@ -72,7 +74,15 @@ class PublicationRestEndpoint {
         return ResponseEntity.ok(map(publications));
     }
 
-    @DeleteMapping("{id}")
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> updatePublication(@PathVariable(value = "id") long publicationId, @RequestBody @Valid UpdatePublicationDto publicationDto) {
+        String blogId = resolveBlogId();
+        Publication updatedPublication = objectMapper.convertValue(publicationDto, Publication.class);
+        publicationService.updatePublication(blogId, publicationId, updatedPublication);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePublication(@PathVariable long id) {
         String blogId = resolveBlogId();
         publicationService.deleteById(id, blogId);

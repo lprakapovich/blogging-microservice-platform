@@ -1,4 +1,4 @@
-package com.lprakapovich.blog.publicationservice.api;
+package com.lprakapovich.blog.publicationservice.api.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +9,7 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-class SubscriptionDto {
+public class SubscriptionDto {
 
     @NotBlank(message = "Subscription blog id cannot be blank")
     private String subscriptionTargetBlogId;

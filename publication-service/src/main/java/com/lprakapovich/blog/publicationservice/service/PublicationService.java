@@ -1,7 +1,10 @@
 package com.lprakapovich.blog.publicationservice.service;
 
 import com.lprakapovich.blog.publicationservice.exception.PublicationNotFoundException;
-import com.lprakapovich.blog.publicationservice.model.*;
+import com.lprakapovich.blog.publicationservice.model.Blog;
+import com.lprakapovich.blog.publicationservice.model.Category;
+import com.lprakapovich.blog.publicationservice.model.Publication;
+import com.lprakapovich.blog.publicationservice.model.Status;
 import com.lprakapovich.blog.publicationservice.repository.PublicationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -31,6 +34,7 @@ public class PublicationService {
     }
 
     public long createPublication(Publication publication, String blogId) {
+        // TODO check category existence
         Blog blog = blogService.getById(blogId);
         publication.setBlog(blog);
         Publication saved = publicationRepository.save(publication);
@@ -47,7 +51,7 @@ public class PublicationService {
 
     @Transactional
     public void deleteById(long id, String blogId) {
-        validateExistence(id, blogId);
+        validateByPublicationIdAndBlogId(id, blogId);
         publicationRepository.deleteById(id);
     }
 
@@ -69,7 +73,7 @@ public class PublicationService {
         return publication;
     }
 
-    private void validateExistence(long id, String blogId) {
+    private void validateByPublicationIdAndBlogId(long id, String blogId) {
         if (!publicationRepository.existsByIdAndBlog_Id(id, blogId)) {
             throw new PublicationNotFoundException();
         }
@@ -89,5 +93,18 @@ public class PublicationService {
 
     public List<Publication> getAllByBlogIdAndCategory(String blogId, long categoryId, PageRequest p) {
         return publicationRepository.findAllByBlog_IdAndCategory_Id(blogId, categoryId, p);
+    }
+
+    public void updatePublication(String blogId, long publicationId, Publication publication) {
+        // TODO check category existence
+        validateByPublicationIdAndBlogId(publicationId, blogId);
+        publicationRepository.findByIdAndBlog_Id(publicationId, blogId).ifPresent(p -> {
+            p.setHeader(publication.getHeader());
+            p.setSubHeader(publication.getSubHeader());
+            p.setCategory(publication.getCategory());
+            p.setStatus(publication.getStatus());
+            p.setContent(publication.getContent());
+            publicationRepository.save(p);
+        });
     }
 }

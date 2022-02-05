@@ -1,11 +1,11 @@
-package com.lprakapovich.blog.publicationservice.api;
+package com.lprakapovich.blog.publicationservice.api.dto;
 
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 
 @Data
-class CategoryDto {
+public class CategoryDto {
 
     private long id;
 

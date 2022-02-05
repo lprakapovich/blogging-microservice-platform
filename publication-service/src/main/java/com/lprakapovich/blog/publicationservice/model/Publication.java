@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -21,10 +22,8 @@ public class Publication {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(nullable = false)
     private String header;
     private String subHeader;
-
     private Status status;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
@@ -40,6 +39,9 @@ public class Publication {
     @ManyToOne
     @JoinColumn
     private Category category;
+
+    @Type(type = "com.lprakapovich.blog.publicationservice.postgres.ContentJsonbType")
+    private Content content;
 
     @PrePersist
     public void publicationPrePersist() {

@@ -1,16 +1,21 @@
 package com.lprakapovich.blog.publicationservice.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lprakapovich.blog.publicationservice.api.dto.CategoryDto;
 import com.lprakapovich.blog.publicationservice.model.Category;
-import com.lprakapovich.blog.publicationservice.model.Publication;
+import com.lprakapovich.blog.publicationservice.model.Content;
+import com.lprakapovich.blog.publicationservice.model.Status;
 import com.lprakapovich.blog.publicationservice.service.BlogService;
 import com.lprakapovich.blog.publicationservice.service.CategoryService;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -81,5 +86,22 @@ class CategoryRestEndpoint {
 
     private Category mapToEntity(CategoryDto categoryDto) {
         return mapper.convertValue(categoryDto, Category.class);
+    }
+
+    @Data
+    public static class CreatePublicationDto {
+
+        @NotBlank(message = "Publication header cannot be blank")
+        private String header;
+
+        private String subHeader;
+
+        private Category category;
+
+        @NotNull(message = "Publication must have an assigned status - Published, Draft or Hidden")
+        private Status status;
+
+        @NotBlank(message = "Publication content cannot me blank")
+        private Content content;
     }
 }
