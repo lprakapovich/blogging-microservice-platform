@@ -33,4 +33,10 @@ public class SubscriptionService {
     public List<Subscription> getAllSubscribers(String blogId) {
         return subscriptionRepository.getAllById_BlogId(blogId);
     }
+
+    public void validateSubscription(String blogId, String subscriberBlogId) {
+        if (!subscriptionRepository.existsById_BlogIdAndId_SubscriberBlogId(blogId, subscriberBlogId)) {
+            throw new SubscriptionNotFoundException();
+        }
+    }
 }

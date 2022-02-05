@@ -79,14 +79,6 @@ public class PublicationService {
         }
     }
 
-    public List<Publication> getPublicationsFromSubscriptions(String blogId, PageRequest p) {
-        List<String> subscriptionsIds = subscriptionService.getAllSubscriptions(blogId)
-                .stream()
-                .map(subscription -> subscription.getId().getBlogId())
-                .collect(Collectors.toList());
-        return publicationRepository.findAllByBlog_IdIn(subscriptionsIds, p);
-    }
-
     public List<Publication> getAllByBlogIdAndStatus(String blogId, Status status, PageRequest p) {
         return publicationRepository.findAllByBlog_IdAndStatus(blogId, status, p);
     }
@@ -106,5 +98,38 @@ public class PublicationService {
             p.setContent(publication.getContent());
             publicationRepository.save(p);
         });
+    }
+
+    public List<Publication> getPublicationsFromSubscriptionByCategory(String blogId, String subscriptionBlogId, Long categoryId, PageRequest pageable) {
+        validateSubscription(blogId, subscriptionBlogId);
+        validateCategory(blogId, categoryId);
+        return publicationRepository.findAllByBlog_IdAndCategory_IdAndStatus(subscriptionBlogId, categoryId, Status.PUBLISHED, pageable);
+    }
+
+    public List<Publication> getPublicationsFromSubscription(String blogId, String subscriptionBlogId, PageRequest pageable) {
+        validateSubscription(blogId, subscriptionBlogId);
+        return publicationRepository.findAllByBlog_IdAndStatus(subscriptionBlogId, Status.PUBLISHED, pageable);
+    }
+
+    public Publication getPublicationFromSubscription(String blogId, String subscriptionBlogId, long publicationId) {
+        validateSubscription(blogId, subscriptionBlogId);
+        return publicationRepository.findByIdAndBlog_IdAndStatus(publicationId, subscriptionBlogId, Status.PUBLISHED)
+                .orElseThrow(PublicationNotFoundException::new);
+    }
+
+    public List<Publication> getPublicationsFromSubscriptions(String blogId, PageRequest p) {
+        List<String> subscriptionsIds = subscriptionService.getAllSubscriptions(blogId)
+                .stream()
+                .map(subscription -> subscription.getId().getBlogId())
+                .collect(Collectors.toList());
+        return publicationRepository.findAllByBlog_IdIn(subscriptionsIds, p);
+    }
+
+    private void validateSubscription(String blogId, String subscriptionBlogId) {
+        subscriptionService.validateSubscription(subscriptionBlogId, blogId);
+    }
+
+    private void validateCategory(String blogId, long categoryId) {
+        categoryService.validateExistence(categoryId, blogId);
     }
 }

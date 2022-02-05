@@ -10,4 +10,6 @@ public interface SubscriptionRepository extends PagingAndSortingRepository<Subsc
     List<Subscription> getAllById_BlogId(String blogId);
 
     List<Subscription> getAllById_SubscriberBlogId(String blogId);
+
+    boolean existsById_BlogIdAndId_SubscriberBlogId(String blogId, String subscriberBlogId);
 }

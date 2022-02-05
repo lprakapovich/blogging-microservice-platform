@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.lprakapovich.blog.publicationservice.api.paging.PageableDefaultValues.DEFAULT_PAGE_NUMBER;
+import static com.lprakapovich.blog.publicationservice.api.paging.PageableDefaultValues.DEFAULT_PAGE_SIZE;
 import static com.lprakapovich.blog.publicationservice.util.BlogIdResolver.resolveBlogIdFromPrincipal;
 
 @RestController
@@ -48,8 +50,8 @@ class PublicationRestEndpoint {
     }
 
     @GetMapping
-    public ResponseEntity<List<PublicationDto>> getPublications(@RequestParam(defaultValue = "0") int page,
-                                                                @RequestParam(defaultValue = "3") int size,
+    public ResponseEntity<List<PublicationDto>> getPublications(@RequestParam(defaultValue = DEFAULT_PAGE_NUMBER) int page,
+                                                                @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int size,
                                                                 @RequestParam(required = false) Status status,
                                                                 @RequestParam(required = false) Long categoryId) {
         String blogId = resolveBlogId();
@@ -73,18 +75,35 @@ class PublicationRestEndpoint {
         return ResponseEntity.ok(publicationDto);
     }
 
-    //todo::::: add sorting by category
     @GetMapping("/subscriptions")
-    public ResponseEntity<List<PublicationDto>> getPublicationsFromSubscriptions(@RequestParam(defaultValue = "0") int page,
-                                                                                 @RequestParam(defaultValue = "3") int size) {
+    public ResponseEntity<List<PublicationDto>> getPublicationsFromSubscriptions(@RequestParam(defaultValue = DEFAULT_PAGE_NUMBER) int page,
+                                                                                 @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int size) {
         String blogId = resolveBlogId();
         PageRequest pageable = PageRequest.of(page, size, Sort.by("createdDateTime").descending());
         List<Publication> publications = publicationService.getPublicationsFromSubscriptions(blogId, pageable);
         return ResponseEntity.ok(map(publications));
     }
-    
-    //todo:: get a single publication from subscriptions
-    
+
+    @GetMapping("/subscriptions/{subscriptionBlogId}")
+    public ResponseEntity<List<PublicationDto>> getPublicationsFromParticularSubscription(@PathVariable String subscriptionBlogId,
+                                                                                          @RequestParam(defaultValue = DEFAULT_PAGE_NUMBER) int page,
+                                                                                          @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int size,
+                                                                                          @RequestParam(required = false) Long categoryId) {
+        String blogId = resolveBlogId();
+        PageRequest p = PageRequest.of(page, size, Sort.by("createdDateTime"));
+        List<Publication> publications = Objects.nonNull(categoryId) ?
+                publicationService.getPublicationsFromSubscriptionByCategory(blogId, subscriptionBlogId, categoryId, p) :
+                publicationService.getPublicationsFromSubscription(blogId, subscriptionBlogId, p);
+        return ResponseEntity.ok(map(publications));
+    }
+
+    @GetMapping("/subscriptions/{subscriptionBlogId}/{publicationId}")
+    public ResponseEntity<PublicationDto> getPublicationFromSubscription(@PathVariable String subscriptionBlogId, @PathVariable long publicationId) {
+        String blogId = resolveBlogId();
+        Publication publication = publicationService.getPublicationFromSubscription(blogId, subscriptionBlogId, publicationId);
+        return ResponseEntity.ok(map(publication));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePublication(@PathVariable long id) {
         String blogId = resolveBlogId();
