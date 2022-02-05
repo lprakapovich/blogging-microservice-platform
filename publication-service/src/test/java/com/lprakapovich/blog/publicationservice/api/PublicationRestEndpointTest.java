@@ -36,7 +36,7 @@ public class PublicationRestEndpointTest {
         assertThat(publicationRestEndpoint).isNotNull();
     }
 
-    // TODO change to created
+    // todo:  change to created
     @Test
     public void whenPostRequestWithValidPublication_thenResponseStatusIsCreated() throws Exception {
         String publication = buildPublicationJson("Test header", "Test subheader");

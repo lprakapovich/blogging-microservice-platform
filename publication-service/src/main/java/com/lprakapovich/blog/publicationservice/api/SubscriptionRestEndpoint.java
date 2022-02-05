@@ -63,7 +63,7 @@ class SubscriptionRestEndpoint {
         return ResponseEntity.ok(subscriberDtos);
     }
 
-    // TODO instead of resolving blogId each time, add interceptor to compare values from path and token
+    // todo:  instead of resolving blogId each time, add interceptor to compare values from path and token
     private String resolveBlogId() {
         String blogId = resolveBlogIdFromPrincipal();
         blogService.validateExistence(blogId);

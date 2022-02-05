@@ -35,7 +35,7 @@ public class CategoryService {
         return save.getId();
     }
 
-    // TODO set to null all publications with this category
+    // todo:  set to null all publications with this category
     @Transactional
     public void deleteCategory(long categoryId, String blogId) {
         validateExistence(categoryId, blogId);

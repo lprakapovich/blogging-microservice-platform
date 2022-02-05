@@ -16,7 +16,7 @@ public interface PublicationRepository extends PagingAndSortingRepository<Public
 
     List<Publication> findAllByBlog_Id(String id, Pageable pageable);
 
-    // TODO add sorting
+    // todo:  add sorting
     List<Publication> findAllByBlog_IdInAndStatus(List<String> ids, Status status, Pageable pageable);
 
     List<Publication> findAllByBlog_IdAndStatus(String blogId, Status status, Pageable p);

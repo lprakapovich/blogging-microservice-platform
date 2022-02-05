@@ -58,7 +58,7 @@ class CategoryRestEndpoint {
         return ResponseEntity.noContent().build();
     }
 
-    // TODO refactor to use DTO
+    // todo:  refactor to use DTO
     @PutMapping("/{id}")
     public ResponseEntity<CategoryDto> updateCategory(@PathVariable long id, @Valid @RequestBody CategoryDto categoryDto) {
         String blogId = resolveBlogId();
@@ -86,22 +86,5 @@ class CategoryRestEndpoint {
 
     private Category mapToEntity(CategoryDto categoryDto) {
         return mapper.convertValue(categoryDto, Category.class);
-    }
-
-    @Data
-    public static class CreatePublicationDto {
-
-        @NotBlank(message = "Publication header cannot be blank")
-        private String header;
-
-        private String subHeader;
-
-        private Category category;
-
-        @NotNull(message = "Publication must have an assigned status - Published, Draft or Hidden")
-        private Status status;
-
-        @NotBlank(message = "Publication content cannot me blank")
-        private Content content;
     }
 }

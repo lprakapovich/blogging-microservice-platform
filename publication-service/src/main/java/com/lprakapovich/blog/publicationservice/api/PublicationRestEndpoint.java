@@ -1,6 +1,7 @@
 package com.lprakapovich.blog.publicationservice.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lprakapovich.blog.publicationservice.api.dto.CreatePublicationDto;
 import com.lprakapovich.blog.publicationservice.api.dto.PublicationDto;
 import com.lprakapovich.blog.publicationservice.api.dto.UpdatePublicationDto;
 import com.lprakapovich.blog.publicationservice.model.Publication;
@@ -29,20 +30,21 @@ class PublicationRestEndpoint {
     private final PublicationService publicationService;
     private final BlogService blogService;
     private final ObjectMapper objectMapper;
-
+    
     @PostMapping
-    public ResponseEntity<URI> createPublication(@Valid @RequestBody PublicationDto publicationDto) {
+    public ResponseEntity<URI> createPublication(@Valid @RequestBody CreatePublicationDto publicationDto) {
         String blogId = resolveBlogId();
-        Publication publication = map(publicationDto);
+        Publication publication = objectMapper.convertValue(publicationDto, Publication.class);
         long publicationId = publicationService.createPublication(publication, blogId);
         return ResponseEntity.created(URI.create(String.valueOf(publicationId))).build();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<PublicationDto> getPublication(@PathVariable long id) {
-        Publication publication = publicationService.getById(id, resolveBlogId());
-        PublicationDto publicationDto = map(publication);
-        return ResponseEntity.ok(publicationDto);
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> updatePublication(@PathVariable(value = "id") long publicationId, @RequestBody @Valid UpdatePublicationDto publicationDto) {
+        String blogId = resolveBlogId();
+        Publication updatedPublication = objectMapper.convertValue(publicationDto, Publication.class);
+        publicationService.updatePublication(blogId, publicationId, updatedPublication);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping
@@ -63,8 +65,15 @@ class PublicationRestEndpoint {
         }
         return ResponseEntity.ok(map(publications));
     }
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<PublicationDto> getPublication(@PathVariable long id) {
+        Publication publication = publicationService.getById(id, resolveBlogId());
+        PublicationDto publicationDto = map(publication);
+        return ResponseEntity.ok(publicationDto);
+    }
 
-    // TODO add sorting by publicationDate
+    //todo::::: add sorting by category
     @GetMapping("/subscriptions")
     public ResponseEntity<List<PublicationDto>> getPublicationsFromSubscriptions(@RequestParam(defaultValue = "0") int page,
                                                                                  @RequestParam(defaultValue = "3") int size) {
@@ -73,15 +82,9 @@ class PublicationRestEndpoint {
         List<Publication> publications = publicationService.getPublicationsFromSubscriptions(blogId, pageable);
         return ResponseEntity.ok(map(publications));
     }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Void> updatePublication(@PathVariable(value = "id") long publicationId, @RequestBody @Valid UpdatePublicationDto publicationDto) {
-        String blogId = resolveBlogId();
-        Publication updatedPublication = objectMapper.convertValue(publicationDto, Publication.class);
-        publicationService.updatePublication(blogId, publicationId, updatedPublication);
-        return ResponseEntity.ok().build();
-    }
-
+    
+    //todo:: get a single publication from subscriptions
+    
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePublication(@PathVariable long id) {
         String blogId = resolveBlogId();
@@ -105,7 +108,7 @@ class PublicationRestEndpoint {
         return ResponseEntity.ok().body(updatedPublicationDto);
     }
 
-    // TODO instead of resolving blogId each time, add interceptor to compare values from path and token
+    //todo:: instead of resolving blogId each time, add interceptor to compare values from path and token
     private String resolveBlogId() {
         String blogId = resolveBlogIdFromPrincipal();
         blogService.validateExistence(blogId);

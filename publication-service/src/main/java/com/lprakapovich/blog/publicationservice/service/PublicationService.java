@@ -34,7 +34,7 @@ public class PublicationService {
     }
 
     public long createPublication(Publication publication, String blogId) {
-        // TODO check category existence
+        // todo:  check category existence
         Blog blog = blogService.getById(blogId);
         publication.setBlog(blog);
         Publication saved = publicationRepository.save(publication);
@@ -96,7 +96,7 @@ public class PublicationService {
     }
 
     public void updatePublication(String blogId, long publicationId, Publication publication) {
-        // TODO check category existence
+        // todo:  check category existence
         validateByPublicationIdAndBlogId(publicationId, blogId);
         publicationRepository.findByIdAndBlog_Id(publicationId, blogId).ifPresent(p -> {
             p.setHeader(publication.getHeader());
