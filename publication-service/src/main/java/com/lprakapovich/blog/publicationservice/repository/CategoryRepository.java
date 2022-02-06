@@ -20,4 +20,7 @@ public interface CategoryRepository extends PagingAndSortingRepository<Category,
 
     @Query(value = "select * from categories c where c.blog_id = :blogId and c.id = :id", nativeQuery = true)
     Optional<Category> findByIdAndBlogId(@Param(value = "id") long id, @Param(value = "blogId") String blogId);
+
+    @Query(value = "select exists(select * from categories c where c.blog_id = :blogId and c.name = :name)", nativeQuery = true)
+    boolean existsByNameAndBlogId(@Param(value = "name") String name, @Param(value = "blogId") String blogId);
 }

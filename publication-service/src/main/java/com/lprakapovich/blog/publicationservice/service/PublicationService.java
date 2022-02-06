@@ -79,7 +79,7 @@ public class PublicationService {
 
     /**
      * 
-     * @param id id pf publication to delete
+     * @param id id of publication to delete
      * @param blogId blogId of authenticated user
      */
     public void deleteById(long id, String blogId) {
