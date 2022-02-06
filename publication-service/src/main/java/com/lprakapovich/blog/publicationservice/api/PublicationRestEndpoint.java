@@ -127,7 +127,6 @@ class PublicationRestEndpoint {
         return ResponseEntity.ok().body(updatedPublicationDto);
     }
 
-    //todo:: instead of resolving blogId each time, add interceptor to compare values from path and token
     private String resolveBlogId() {
         String blogId = resolveBlogIdFromPrincipal();
         blogService.validateExistence(blogId);
@@ -143,9 +142,5 @@ class PublicationRestEndpoint {
 
     private PublicationDto map(Publication publication) {
         return objectMapper.convertValue(publication, PublicationDto.class);
-    }
-
-    private Publication map(PublicationDto publicationDto) {
-        return objectMapper.convertValue(publicationDto, Publication.class);
     }
 }

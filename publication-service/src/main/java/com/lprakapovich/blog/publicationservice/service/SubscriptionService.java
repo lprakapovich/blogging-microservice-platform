@@ -14,28 +14,32 @@ public class SubscriptionService {
 
     private final SubscriptionRepository subscriptionRepository;
 
-    public Subscription.SubscriptionId saveSubscription(Subscription subscription) {
-        Subscription save = subscriptionRepository.save(subscription);
-        return save.getId();
+    public Subscription.SubscriptionId createSubscription(Subscription subscription) {
+        Subscription createdSubscription = subscriptionRepository.save(subscription);
+        return createdSubscription.getId();
     }
 
     public void deleteSubscription(Subscription subscription) {
-        if (!subscriptionRepository.existsById(subscription.getId())) {
-            throw new SubscriptionNotFoundException();
-        }
+        checkSubscription(subscription.getId());
         subscriptionRepository.deleteById(subscription.getId());
     }
 
-    public List<Subscription> getAllSubscriptions(String blogId) {
+    public List<Subscription> getAllBlogSubscriptions(String blogId) {
         return subscriptionRepository.getAllById_SubscriberBlogId(blogId);
     }
 
-    public List<Subscription> getAllSubscribers(String blogId) {
+    public List<Subscription> getAllBlogSubscribers(String blogId) {
         return subscriptionRepository.getAllById_BlogId(blogId);
     }
 
-    public void validateSubscription(String blogId, String subscriberBlogId) {
+    public void checkSubscription(String blogId, String subscriberBlogId) {
         if (!subscriptionRepository.existsById_BlogIdAndId_SubscriberBlogId(blogId, subscriberBlogId)) {
+            throw new SubscriptionNotFoundException();
+        }
+    }
+
+    private void checkSubscription(Subscription.SubscriptionId id) {
+        if (!subscriptionRepository.existsById(id)) {
             throw new SubscriptionNotFoundException();
         }
     }

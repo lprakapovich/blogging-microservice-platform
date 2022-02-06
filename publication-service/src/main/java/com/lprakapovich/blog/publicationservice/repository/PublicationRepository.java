@@ -14,8 +14,6 @@ public interface PublicationRepository extends PagingAndSortingRepository<Public
 
     Optional<Publication> findByIdAndBlog_IdAndStatus(long publicationId, String subscriptionBlogId, Status status);
 
-    List<Publication> findByBlog_Id(String id);
-
     List<Publication> findAllByBlog_Id(String id, Pageable pageable);
 
     List<Publication> findAllByBlog_IdInAndStatus(List<String> ids, Status status, Pageable pageable);
@@ -25,8 +23,6 @@ public interface PublicationRepository extends PagingAndSortingRepository<Public
     List<Publication> findAllByBlog_IdAndCategory_Id(String id, long categoryId, Pageable pageable);
 
     List<Publication> findAllByBlog_IdAndCategory_IdAndStatus(String blogId, long categoryId, Status status, Pageable pageable);
-
-    List<Publication> findAllByBlog_IdIn(List<String> ids, Pageable pageable);
 
     List<Publication> findByCategory_IdAndBlog_Id(long categoryId, String blogId);
 

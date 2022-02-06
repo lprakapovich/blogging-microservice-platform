@@ -16,11 +16,11 @@ public class CreatePublicationDto {
 
     private String subHeader;
 
-    private Category category;
+    private CategoryDto category;
 
     @NotNull(message = "Publication must have an assigned status - Published, Draft or Hidden")
     private Status status;
 
-    @NotBlank(message = "Publication content cannot me blank")
+    @NotNull(message = "Publication content cannot me blank")
     private Content content;
 }

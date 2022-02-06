@@ -8,7 +8,6 @@ import com.lprakapovich.blog.publicationservice.repository.PublicationRepository
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
@@ -19,6 +18,18 @@ public class CategoryService {
     private final PublicationRepository publicationRepository;
     private final CategoryRepository categoryRepository;
 
+    public long createCategory(Category category, String blogId) {
+        Blog blog = blogService.getById(blogId);
+        Category createdCategory = categoryRepository.save(category);
+        blog.getCategories().add(createdCategory);
+        return createdCategory.getId();
+    }
+
+    public Category updateCategory(long categoryId, Category updatedCategory, String blogId) {
+        categoryRepository.updateCategoryName(updatedCategory.getName(), categoryId, blogId);
+        return getById(categoryId, blogId);
+    }
+
     public List<Category> getAllByBlogId(String blogId) {
         return categoryRepository.findByBlogId(blogId);
     }
@@ -27,30 +38,14 @@ public class CategoryService {
         return categoryRepository.findByIdAndBlogId(id, blogId).orElseThrow(CategoryNotFoundException::new);
     }
 
-    @Transactional
-    public long createCategory(Category category, String blogId) {
-        Blog blog = blogService.getById(blogId);
-        Category save = categoryRepository.save(category);
-        blog.getCategories().add(save);
-        return save.getId();
-    }
-
-    // todo:  set to null all publications with this category
-    @Transactional
     public void deleteCategory(long categoryId, String blogId) {
-        validateExistence(categoryId, blogId);
+        checkCategory(categoryId, blogId);
         publicationRepository.findByCategory_IdAndBlog_Id(categoryId, blogId)
                 .forEach(publication -> publication.setCategory(null));
         categoryRepository.deleteById(categoryId);
     }
 
-    @Transactional
-    public Category updateCategory(long categoryId, Category updatedCategory, String blogId) {
-        categoryRepository.updateCategoryName(updatedCategory.getName(), categoryId, blogId);
-        return getById(categoryId, blogId);
-    }
-
-    public void validateExistence(long id, String blogId) {
+    public void checkCategory(long id, String blogId) {
         if (categoryRepository.findByIdAndBlogId(id, blogId).isEmpty()) {
             throw new CategoryNotFoundException();
         }
