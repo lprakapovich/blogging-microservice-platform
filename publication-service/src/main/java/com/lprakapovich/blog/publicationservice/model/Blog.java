@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +22,7 @@ public class Blog {
     private String id;
 
     private String description;
-    private Instant creationDate;
+    private LocalDateTime createdDateTime;
 
     @Embedded
     private Author author;
@@ -31,7 +31,8 @@ public class Blog {
     @JoinColumn(name = "blog_id")
     private List<Category> categories = new ArrayList<>();
 
-//    @OneToMany(cascade = CascadeType.ALL, mappedBy = "blog")
-//    @JoinColumn(name = "blog_id")
-//    private List<Publication> publications = new ArrayList<>();
+    @PrePersist
+    public void publicationPrePersist() {
+        this.createdDateTime = LocalDateTime.now();
+    }
 }

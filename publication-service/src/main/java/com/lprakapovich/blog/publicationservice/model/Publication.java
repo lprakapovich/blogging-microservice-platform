@@ -3,13 +3,11 @@ package com.lprakapovich.blog.publicationservice.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Slf4j
 @Entity
 @Table(name = "publications", indexes = {
         @Index(name = "publicationId_blogId_index", columnList = "id, blog_id"),
@@ -46,12 +44,10 @@ public class Publication {
     @PrePersist
     public void publicationPrePersist() {
         this.createdDateTime = LocalDateTime.now();
-        log.info("publicationPrePersist() called");
     }
 
     @PreUpdate
     public void publicationPreUpdate() {
         this.lastUpdatedDateTime = LocalDateTime.now();
-        log.info("publicationPreUpdate() called");
     }
 }

@@ -1,16 +1,11 @@
 package com.lprakapovich.blog.publicationservice.service;
 
 import com.lprakapovich.blog.publicationservice.exception.BlogNotFoundException;
-import com.lprakapovich.blog.publicationservice.exception.CategoryNotFoundException;
 import com.lprakapovich.blog.publicationservice.model.Blog;
-import com.lprakapovich.blog.publicationservice.model.Category;
 import com.lprakapovich.blog.publicationservice.repository.BlogRepository;
-import com.lprakapovich.blog.publicationservice.repository.CategoryRepository;
-import io.jsonwebtoken.lang.Collections;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +18,11 @@ public class BlogService {
     public String createBlog(Blog blog) {
         Blog save = blogRepository.save(blog);
         return save.getId();
+    }
+
+    public Blog updateBlogAuthorDetails(String id, Blog blog) {
+        validateExistence(id);
+        return blogRepository.updateBlogData(id, blog.getAuthor().getFirstName(), blog.getAuthor().getLastName());
     }
 
     public Blog getById(String id) {
