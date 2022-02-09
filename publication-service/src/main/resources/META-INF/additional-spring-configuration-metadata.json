@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "spring.kafka.group-id",
+      "type": "java.lang.String",
+      "description": "Description for spring.kafka.group-id."
+    }
+  ] }
