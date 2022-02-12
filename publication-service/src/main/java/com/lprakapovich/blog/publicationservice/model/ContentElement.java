@@ -12,5 +12,5 @@ import java.io.Serializable;
 public class ContentElement implements Serializable {
 
     private ContentType contentType;
-    private String contentElementSource;
+    private String contentText;
 }

@@ -25,7 +25,7 @@ import static com.lprakapovich.blog.publicationservice.api.paging.PageableDefaul
 import static com.lprakapovich.blog.publicationservice.util.BlogIdResolver.resolveBlogIdFromPrincipal;
 
 @RestController
-@RequestMapping("/publications")
+@RequestMapping("/publication-service/publications")
 @RequiredArgsConstructor
 class PublicationRestEndpoint {
 

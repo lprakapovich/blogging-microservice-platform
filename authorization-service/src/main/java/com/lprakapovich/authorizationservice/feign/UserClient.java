@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(name = "user-service", url = "http://localhost:9091", configuration = UserClientConfiguration.class)
 public interface UserClient {
 
-    @PostMapping("/users")
+    @PostMapping("/user-service")
     ResponseEntity<?> createUser(@RequestBody RegisterDto userDetails);
 
-    @GetMapping("/users/{username}")
+    @GetMapping("/user-service/{username}")
     ResponseEntity<UserData> getUserByUsername(@PathVariable String username);
 }

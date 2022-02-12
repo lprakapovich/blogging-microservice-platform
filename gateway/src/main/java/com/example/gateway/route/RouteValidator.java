@@ -9,9 +9,9 @@ import java.util.function.Predicate;
 @Component
 public class RouteValidator {
 
-    private static final String REGISTER_URL = "/auth/register";
-    private static final String LOGIN_URL = "/auth/login";
-    private static final String VALIDATE_URL = "/auth/validate";
+    private static final String REGISTER_URL = "/auth-service/register";
+    private static final String LOGIN_URL = "/auth-service/login";
+    private static final String VALIDATE_URL = "/auth-service/validate";
 
     private static final List<String> openApiEndpoints = List.of(REGISTER_URL, LOGIN_URL, VALIDATE_URL);
 

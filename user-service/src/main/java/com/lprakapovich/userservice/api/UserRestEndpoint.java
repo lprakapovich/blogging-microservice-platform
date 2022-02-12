@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/user-service")
 @RequiredArgsConstructor
 public class UserRestEndpoint {
 

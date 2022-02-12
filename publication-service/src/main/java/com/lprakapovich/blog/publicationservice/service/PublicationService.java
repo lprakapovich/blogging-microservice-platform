@@ -31,7 +31,7 @@ public class PublicationService {
      * @return id of the created publication 
      */
     public long createPublication(Publication publication, String blogId) {
-        checkCategory(blogId, publication.getCategory().getId());
+        checkNullableCategory(blogId, publication);
         Blog blog = blogService.getById(blogId);
         publication.setBlog(blog);
         Publication createdPublication = publicationRepository.save(publication);
@@ -46,7 +46,7 @@ public class PublicationService {
      */
     public void updatePublication(String blogId, long publicationId, Publication publication) {
         checkPublication(blogId, publicationId);
-        checkCategory(blogId, publication.getCategory().getId());
+        checkNullableCategory(blogId, publication);
         publicationRepository.findByIdAndBlog_Id(publicationId, blogId).ifPresent(p -> {
             p.setHeader(publication.getHeader());
             p.setSubHeader(publication.getSubHeader());
@@ -223,4 +223,16 @@ public class PublicationService {
     private void checkCategory(String blogId, long categoryId) {
         categoryService.checkCategory(categoryId, blogId);
     }
+
+    /**
+     *
+     * @param blogId blogId of authenticated user
+     * @param publication publication that is created / updated and may have no category
+     */
+    private void checkNullableCategory(String blogId, Publication publication) {
+        if (publication.getCategory() != null) {
+            checkCategory(blogId, publication.getCategory().getId());
+        }
+    }
+
 }

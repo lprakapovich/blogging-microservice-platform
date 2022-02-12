@@ -6,6 +6,7 @@ import com.lprakapovich.blog.publicationservice.repository.BlogRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +24,12 @@ public class BlogService {
     public Blog updateBlogAuthorDetails(String id, Blog blog) {
         validateExistence(id);
         return blogRepository.updateBlogData(id, blog.getAuthor().getFirstName(), blog.getAuthor().getLastName());
+    }
+
+    public void updateBlogDescription(String id, String description) {
+        Blog blog = getById(id);
+        blog.setDescription(description);
+        blogRepository.save(blog);
     }
 
     public Blog getById(String id) {

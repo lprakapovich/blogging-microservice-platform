@@ -1,6 +1,7 @@
 package com.lprakapovich.blog.publicationservice.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.lprakapovich.blog.publicationservice.model.Blog;
 import com.lprakapovich.blog.publicationservice.model.Content;
 import com.lprakapovich.blog.publicationservice.model.Status;
 import lombok.Data;
@@ -30,6 +31,7 @@ public class PublicationDto {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime lastUpdatedDateTime;
 
-    // todo:  use dto
     private Content content;
+
+    private BlogDto blog;
 }

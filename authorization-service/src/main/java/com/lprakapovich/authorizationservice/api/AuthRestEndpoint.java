@@ -19,7 +19,7 @@ import java.net.URI;
 import static com.lprakapovich.authorizationservice.exception.JwtException.Cause.INVALID;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/auth-service")
 @RequiredArgsConstructor
 public class AuthRestEndpoint {
 

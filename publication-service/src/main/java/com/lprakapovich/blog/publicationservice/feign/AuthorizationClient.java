@@ -5,12 +5,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * Declarative API for user service used instead of RestTemplate
+ * Declarative API for authorization service used instead of RestTemplate
  */
 
 @FeignClient(name = "authorization-service", url = "http://localhost:9090", configuration = AuthorizationClientConfiguration.class)
 public interface AuthorizationClient {
 
-    @PostMapping("/auth/validate")
+    @PostMapping("/auth-service/validate")
     ResponseEntity<String> validateToken(@RequestParam String token);
 }

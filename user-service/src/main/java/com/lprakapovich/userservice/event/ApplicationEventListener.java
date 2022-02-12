@@ -15,6 +15,6 @@ public class ApplicationEventListener {
 
     @EventListener
     public void publishUserCreatedEvent(UserCreatedEvent userCreatedEvent) {
-        kafkaTemplate.send(KafkaTopicConfig.USER_CREATED_TOPIC, userCreatedEvent);
+        kafkaTemplate.send(KafkaTopicConfig.USER_CREATED_TOPIC, userCreatedEvent.getUsername(), userCreatedEvent);
     }
 }

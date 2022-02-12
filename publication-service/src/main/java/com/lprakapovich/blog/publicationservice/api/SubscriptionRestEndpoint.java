@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 import static com.lprakapovich.blog.publicationservice.util.BlogIdResolver.resolveBlogIdFromPrincipal;
 
 @RestController
-@RequestMapping("/subscriptions")
+@RequestMapping("/publication-service/subscriptions")
 @RequiredArgsConstructor
 class SubscriptionRestEndpoint {
 
@@ -63,7 +63,6 @@ class SubscriptionRestEndpoint {
         return ResponseEntity.noContent().build();
     }
 
-    // todo:  instead of resolving blogId each time, add interceptor to compare values from path and token
     private String resolveBlogId() {
         String blogId = resolveBlogIdFromPrincipal();
         blogService.validateExistence(blogId);
