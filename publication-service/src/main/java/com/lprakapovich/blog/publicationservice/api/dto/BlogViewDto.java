@@ -1,6 +1,5 @@
 package com.lprakapovich.blog.publicationservice.api.dto;
 
-import com.lprakapovich.blog.publicationservice.model.Author;
 import com.lprakapovich.blog.publicationservice.model.Category;
 import lombok.AllArgsConstructor;
 import lombok.Data;

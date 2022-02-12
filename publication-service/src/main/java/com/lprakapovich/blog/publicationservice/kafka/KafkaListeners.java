@@ -4,8 +4,6 @@ import com.lprakapovich.blog.publicationservice.kafka.config.KafkaTopicConfig;
 import com.lprakapovich.blog.publicationservice.kafka.events.BlogCreatedEvent;
 import com.lprakapovich.blog.publicationservice.kafka.events.PublicationCreatedEvent;
 import com.lprakapovich.blog.publicationservice.kafka.events.UserRegisteredEvent;
-import com.lprakapovich.blog.publicationservice.kafka.events.UserUpdatedEvent;
-import com.lprakapovich.blog.publicationservice.model.Author;
 import com.lprakapovich.blog.publicationservice.model.Blog;
 import com.lprakapovich.blog.publicationservice.service.BlogService;
 import lombok.AllArgsConstructor;
@@ -24,7 +22,6 @@ public class KafkaListeners {
     void handleUserRegisteredEvent(UserRegisteredEvent event) {
         Blog blog = Blog.builder()
                 .id(event.getUsername())
-                .author(new Author(event.getFirstName(), event.getLastName()))
                 .build();
         blogService.createBlog(blog);
     }
