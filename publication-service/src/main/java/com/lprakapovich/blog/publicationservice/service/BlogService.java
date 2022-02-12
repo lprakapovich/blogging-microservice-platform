@@ -31,15 +31,11 @@ public class BlogService {
         return blogs;
     }
 
-    public Blog updateBlogAuthorDetails(String id, Blog blog) {
-        validateExistence(id);
-        return blogRepository.updateBlogData(id, blog.getAuthor().getFirstName(), blog.getAuthor().getLastName());
-    }
-
-    public void updateBlogDescription(String id, String description) {
+    public Blog updateBlog(String id, String name, String description) {
         Blog blog = getById(id);
+        blog.setName(name);
         blog.setDescription(description);
-        blogRepository.save(blog);
+        return blogRepository.save(blog);
     }
 
     public void validateExistence(String id) {

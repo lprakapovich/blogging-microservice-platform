@@ -14,8 +14,8 @@ import java.util.List;
 public class BlogViewDto {
 
     private String id;
+    private String name;
     private String description;
-    private Author author;
     private List<Category> categories;
     private int numberOfSubscriptions;
     private int numberOfSubscribers;

@@ -21,11 +21,11 @@ public class Blog {
     @Id
     private String id;
 
-    private String description;
-    private LocalDateTime createdDateTime;
+    private String name;
 
-    @Embedded
-    private Author author;
+    private String description;
+
+    private LocalDateTime createdDateTime;
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "blog_id")

@@ -25,7 +25,7 @@ class SubscriptionRestEndpoint {
     private final BlogService blogService;
 
     @PostMapping
-    public ResponseEntity<URI> addSubscription(@Valid @RequestBody SubscriptionDto subscriptionDto) {
+    public ResponseEntity<URI> createSubscription(@Valid @RequestBody SubscriptionDto subscriptionDto) {
         String subscriberId = resolveBlogId();
         String subscriptionTargetId = subscriptionDto.getSubscriptionTargetBlogId();
         blogService.validateExistence(subscriptionTargetId);
@@ -36,7 +36,7 @@ class SubscriptionRestEndpoint {
     }
 
     @GetMapping
-    public ResponseEntity<List<SubscriptionDto>> getAllSubscriptions() {
+    public ResponseEntity<List<SubscriptionDto>> getSubscriptions() {
         String blogId = resolveBlogId();
         List<Subscription> subscriptions = subscriptionService.getAllBlogSubscriptions(blogId);
         List<SubscriptionDto> subscriberDtos = subscriptions
@@ -47,7 +47,7 @@ class SubscriptionRestEndpoint {
     }
 
     @GetMapping("/subscribers")
-    public ResponseEntity<List<SubscriberDto>> getAllSubscribers() {
+    public ResponseEntity<List<SubscriberDto>> getSubscribers() {
         String blogId = resolveBlogId();
         List<Subscription> subscriptions = subscriptionService.getAllBlogSubscribers(blogId);
         List<SubscriberDto> subscriberDtos = subscriptions.stream()

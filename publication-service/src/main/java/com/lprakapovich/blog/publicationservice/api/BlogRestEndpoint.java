@@ -1,5 +1,6 @@
 package com.lprakapovich.blog.publicationservice.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lprakapovich.blog.publicationservice.api.dto.BlogDto;
 import com.lprakapovich.blog.publicationservice.api.dto.BlogViewDto;
 import com.lprakapovich.blog.publicationservice.api.dto.UpdateBlogDto;
@@ -7,7 +8,6 @@ import com.lprakapovich.blog.publicationservice.exception.BlogIdMismatchExceptio
 import com.lprakapovich.blog.publicationservice.model.*;
 import com.lprakapovich.blog.publicationservice.service.BlogService;
 import com.lprakapovich.blog.publicationservice.service.CategoryService;
-import com.lprakapovich.blog.publicationservice.service.PublicationService;
 import com.lprakapovich.blog.publicationservice.service.SubscriptionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,9 +27,17 @@ class BlogRestEndpoint {
     private final BlogService blogService;
     private final SubscriptionService subscriptionService;
     private final CategoryService categoryService;
+    private final ObjectMapper mapper;
+
+    @PutMapping("/{id}")
+    public ResponseEntity<BlogDto> updateBlog(@PathVariable String id, @RequestBody UpdateBlogDto blogDto) {
+        String blogId = resolveBlogId(id);
+        Blog blog = blogService.updateBlog(blogId, blogDto.getName(), blogDto.getDescription());
+        return ResponseEntity.ok(map(blog));
+    }
 
     @GetMapping
-    public ResponseEntity<List<Blog>> getAll() {
+    public ResponseEntity<List<Blog>> getBlogs() {
         return ResponseEntity.ok(blogService.getAll());
     }
 
@@ -42,20 +50,13 @@ class BlogRestEndpoint {
         List<Category> categories = categoryService.getAllByBlogId(id);
         BlogViewDto blogViewDto = new BlogViewDto(
                 id,
+                blog.getName(),
                 blog.getDescription(),
-                blog.getAuthor(),
                 categories,
                 subscriptions.size(),
                 subscribers.size()
         );
         return ResponseEntity.ok(blogViewDto);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<BlogDto> updateBlog(@PathVariable String id, @Valid @RequestBody UpdateBlogDto blogDto) {
-        String blogId = resolveBlogId(id);
-        blogService.updateBlogDescription(blogId, blogDto.getDescription());
-        return ResponseEntity.ok().build();
     }
 
     private String resolveBlogId(String id) {
@@ -65,5 +66,9 @@ class BlogRestEndpoint {
             throw new BlogIdMismatchException();
         }
         return blogId;
+    }
+
+    private BlogDto map(Blog blog) {
+        return mapper.convertValue(blog, BlogDto.class);
     }
 }
