@@ -21,6 +21,16 @@ public class BlogService {
         return save.getId();
     }
 
+    public Blog getById(String id) {
+        return blogRepository.findById(id).orElseThrow(BlogNotFoundException::new);
+    }
+
+    public List<Blog> getAll() {
+        ArrayList<Blog> blogs = new ArrayList<>();
+        blogRepository.findAll().forEach(blogs::add);
+        return blogs;
+    }
+
     public Blog updateBlogAuthorDetails(String id, Blog blog) {
         validateExistence(id);
         return blogRepository.updateBlogData(id, blog.getAuthor().getFirstName(), blog.getAuthor().getLastName());
@@ -30,16 +40,6 @@ public class BlogService {
         Blog blog = getById(id);
         blog.setDescription(description);
         blogRepository.save(blog);
-    }
-
-    public Blog getById(String id) {
-        return blogRepository.findById(id).orElseThrow(BlogNotFoundException::new);
-    }
-
-    public List<Blog> getAll() {
-        ArrayList<Blog> blogs = new ArrayList<>();
-        blogRepository.findAll().forEach(blogs::add);
-        return blogs;
     }
 
     public void validateExistence(String id) {
