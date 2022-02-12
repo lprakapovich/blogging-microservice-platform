@@ -8,6 +8,4 @@ import lombok.NoArgsConstructor;
 public class UserRegisteredEvent {
 
     private String username;
-    private String firstName;
-    private String lastName;
 }
