@@ -11,7 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "blogs")
+@Table(name = "blogs",
+        uniqueConstraints = @UniqueConstraint(name = "BlogIdUsernameConstraint", columnNames = {"id", "username"}),
+        indexes = @Index(name = "blogId_index", columnList = "id"))
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,6 +22,8 @@ public class Blog {
 
     @Id
     private String id;
+
+    private String username;
 
     private String name;
 

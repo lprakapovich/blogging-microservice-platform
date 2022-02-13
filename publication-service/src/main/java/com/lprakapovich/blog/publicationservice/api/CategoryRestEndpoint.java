@@ -17,10 +17,10 @@ import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.lprakapovich.blog.publicationservice.util.BlogIdResolver.resolveBlogIdFromPrincipal;
+import static com.lprakapovich.blog.publicationservice.util.BlogIdResolver.resolveUsernameFromPrincipal;
 
 @Controller
-@RequestMapping("/publication-service/categories")
+@RequestMapping("/publication-service/uri/{blogId}/categories")
 @RequiredArgsConstructor
 class CategoryRestEndpoint {
 
@@ -29,44 +29,47 @@ class CategoryRestEndpoint {
     private final ObjectMapper mapper;
 
     @PostMapping
-    public ResponseEntity<URI> createCategory(@Valid @RequestBody CreateCategoryDto categoryDto) {
-        String blogId = resolveBlogId();
+    public ResponseEntity<URI> createCategory(@PathVariable String blogId,
+                                              @Valid @RequestBody CreateCategoryDto categoryDto) {
+        checkBlog(blogId);
         long categoryId = categoryService.createCategory(new Category(categoryDto.getName()), blogId);
         return ResponseEntity.created(URI.create(String.valueOf(categoryId))).build();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CategoryDto> updateCategory(@PathVariable long id, @Valid @RequestBody UpdateCategoryDto categoryDto) {
-        String blogId = resolveBlogId();
+    public ResponseEntity<CategoryDto> updateCategory(@PathVariable String blogId,
+                                                      @PathVariable long id,
+                                                      @Valid @RequestBody UpdateCategoryDto categoryDto) {
+        checkBlog(blogId);
         Category updatedCategory = mapper.convertValue(categoryDto, Category.class);
         Category updated = categoryService.updateCategory(id, updatedCategory, blogId);
         return ResponseEntity.accepted().body(map(updated));
     }
 
     @GetMapping
-    public ResponseEntity<List<CategoryDto>> getCategories() {
-        List<Category> allByBlogId = categoryService.getAllByBlogId(resolveBlogId());
+    public ResponseEntity<List<CategoryDto>> getCategories(@PathVariable String blogId) {
+        checkBlog(blogId);
+        List<Category> allByBlogId = categoryService.getAllByBlogId(blogId);
         return ResponseEntity.ok(map(allByBlogId));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CategoryDto> getCategory(@PathVariable long id) {
-        String blogId =  resolveBlogId();
+    public ResponseEntity<CategoryDto> getCategory(@PathVariable String blogId, @PathVariable long id) {
+        checkBlog(blogId);
         Category byId = categoryService.getById(id, blogId);
         return ResponseEntity.ok(map(byId));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCategory(@PathVariable long id) {
-        String blogId = resolveBlogId();
+    public ResponseEntity<Void> deleteCategory(@PathVariable String blogId, @PathVariable long id) {
+        checkBlog(blogId);
         categoryService.deleteCategory(id, blogId);
         return ResponseEntity.noContent().build();
     }
 
-    private String resolveBlogId() {
-        String blogId = resolveBlogIdFromPrincipal();
-        blogService.validateExistence(blogId);
-        return blogId;
+    private void checkBlog(String blogId) {
+        String authenticatedUsername = resolveUsernameFromPrincipal();
+        blogService.validateExistence(blogId, authenticatedUsername);
     }
 
     private List<CategoryDto> map(List<Category> publications) {

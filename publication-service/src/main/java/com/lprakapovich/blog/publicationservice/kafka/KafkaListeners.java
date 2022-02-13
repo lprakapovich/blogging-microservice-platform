@@ -21,7 +21,8 @@ public class KafkaListeners {
     @KafkaListener(topics = KafkaTopicConfig.USER_CREATED_EVENT_TOPIC, containerFactory = "concurrentKafkaListenerContainerFactory")
     void handleUserRegisteredEvent(UserRegisteredEvent event) {
         Blog blog = Blog.builder()
-                .id(event.getUsername())
+                .id(event.getBlogUri())
+                .username(event.getUsername())
                 .build();
         blogService.createBlog(blog);
     }

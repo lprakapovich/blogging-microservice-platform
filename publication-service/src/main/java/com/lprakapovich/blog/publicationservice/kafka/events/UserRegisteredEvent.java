@@ -8,4 +8,5 @@ import lombok.NoArgsConstructor;
 public class UserRegisteredEvent {
 
     private String username;
+    private String blogUri;
 }

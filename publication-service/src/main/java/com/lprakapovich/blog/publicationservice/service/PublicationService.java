@@ -27,7 +27,7 @@ public class PublicationService {
     /**
      * 
      * @param publication publication to create
-     * @param blogId blogId of authenticated user
+     * @param blogId blogId
      * @return id of the created publication 
      */
     public long createPublication(Publication publication, String blogId) {
@@ -40,7 +40,7 @@ public class PublicationService {
 
     /**
      * 
-     * @param blogId blogId of authenticated user
+     * @param blogId blogId
      * @param publicationId id of publication to update
      * @param publication updated publication
      */
@@ -60,7 +60,7 @@ public class PublicationService {
     /**
      *
      * @param id id of publication to fetch
-     * @param blogId blogId of authenticated user
+     * @param blogId blogId
      * @return publication
      */
     public Publication getById(long id, String blogId) {
@@ -68,8 +68,19 @@ public class PublicationService {
     }
 
     /**
+     *
+     * @param id id of publication to fetch
+     * @param blogId blogId
+     * @param status status of the publication
+     * @return publication
+     */
+    public Publication getByIdAndStatus(long id, String blogId, Status status) {
+        return publicationRepository.findByIdAndBlog_IdAndStatus(id, blogId, status).orElseThrow(PublicationNotFoundException::new);
+    }
+
+    /**
      * 
-     * @param blogId blogId of authenticated user
+     * @param blogId blogId
      * @param pageable pageable request
      * @return publications of authenticated user
      */
@@ -80,7 +91,7 @@ public class PublicationService {
     /**
      * 
      * @param id id of publication to delete
-     * @param blogId blogId of authenticated user
+     * @param blogId blogId
      */
     public void deleteById(long id, String blogId) {
         checkPublication(blogId, id);
@@ -89,7 +100,7 @@ public class PublicationService {
 
     /**
      * 
-     * @param blogId blogId of authenticated user
+     * @param blogId blogId
      * @param status publication status - draft, published, hidden
      * @param pageable pageable request
      * @return user publications with a particular status
@@ -100,7 +111,7 @@ public class PublicationService {
 
     /**
      *
-     * @param blogId blogId of authenticated user
+     * @param blogId blogId
      * @param categoryId id of the category
      * @param pageable pageable request
      * @return user publications with a particular category
@@ -112,7 +123,7 @@ public class PublicationService {
 
     /**
      *
-     * @param blogId blogId of authenticated user
+     * @param blogId blogId
      * @param pageable pageable parameter
      * @return publications of all user subscriptions
      */
@@ -126,7 +137,7 @@ public class PublicationService {
 
     /**
      * 
-     * @param blogId blogId of authenticated user
+     * @param blogId blogId
      * @param subscribedBlogId blogId an authenticated user is subscribed to
      * @param pageable pageable parameter
      * @return all publications from a particular user subscription
@@ -138,7 +149,7 @@ public class PublicationService {
 
     /**
      *
-     * @param blogId blogId of authenticated user
+     * @param blogId blogId
      * @param subscribedBlogId blogId an authenticated user is subscribed to
      * @param categoryId id of category of a subscribed blog
      * @param pageable pageable request
@@ -152,7 +163,7 @@ public class PublicationService {
 
     /**
      * 
-     * @param blogId blogId of authenticated user
+     * @param blogId blogId
      * @param subscribedBlogId blogId an authenticated user is subscribed to
      * @param publicationId targeted publication
      * @return targeted publication of a subscribed blog
@@ -165,7 +176,7 @@ public class PublicationService {
 
     /**
      *
-     * @param blogId blogId of authenticated user
+     * @param blogId blogId
      * @param publicationId id of publication to which a category is assigned
      * @param categoryId id of category to be assigned
      * @return updated publication
@@ -180,7 +191,7 @@ public class PublicationService {
 
     /**
      *
-     * @param blogId blogId of authenticated user
+     * @param blogId blogId
      * @param publicationId id of publication from which a category is unassigned
      * @param categoryId id of category to be unassigned
      * @return updated publication
@@ -198,7 +209,7 @@ public class PublicationService {
     /**
      * 
      * @param id publicationId
-     * @param blogId blogId of authenticated user
+     * @param blogId blogId
      */
     private void checkPublication(String blogId, long id) {
         if (!publicationRepository.existsByIdAndBlog_Id(id, blogId)) {
@@ -208,7 +219,7 @@ public class PublicationService {
 
     /**
      * 
-     * @param blogId blogId of authenticated user
+     * @param blogId blogId
      * @param subscribedBlogId blogId that user is subscribed to
      */
     private void checkSubscription(String blogId, String subscribedBlogId) {
@@ -217,7 +228,7 @@ public class PublicationService {
 
     /**
      *
-     * @param blogId blogId of authenticated user
+     * @param blogId blogId
      * @param categoryId id of the category created by the user
      */
     private void checkCategory(String blogId, long categoryId) {
@@ -226,7 +237,7 @@ public class PublicationService {
 
     /**
      *
-     * @param blogId blogId of authenticated user
+     * @param blogId blogId
      * @param publication publication that is created / updated and may have no category
      */
     private void checkNullableCategory(String blogId, Publication publication) {
@@ -234,5 +245,4 @@ public class PublicationService {
             checkCategory(blogId, publication.getCategory().getId());
         }
     }
-
 }

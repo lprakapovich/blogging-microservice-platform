@@ -12,5 +12,5 @@ import javax.validation.constraints.NotBlank;
 public class SubscriptionDto {
 
     @NotBlank(message = "Subscription blog id cannot be blank")
-    private String subscriptionTargetBlogId;
+    private String subscribeToId;
 }

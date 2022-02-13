@@ -5,10 +5,3 @@ auth:
   jwt:
     secret: unguessable-token-secret-long-enough-for-production
     expiration-in-millis: 300
-
-#ribbon:
-#  eureka:
-#    enabled: false
-#user-service:
-#  ribbon:
-#    listOfServers: http://localhost:9091

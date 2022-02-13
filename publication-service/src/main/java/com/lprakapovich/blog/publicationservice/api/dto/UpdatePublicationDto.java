@@ -5,6 +5,7 @@ import com.lprakapovich.blog.publicationservice.model.Content;
 import com.lprakapovich.blog.publicationservice.model.Status;
 import lombok.Data;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -21,6 +22,7 @@ public class UpdatePublicationDto {
     @NotNull(message = "Publication must have an assigned status - Published, Draft or Hidden")
     private Status status;
 
+    @Valid
     @NotNull(message = "Publication content cannot me blank")
     private Content content;
 }

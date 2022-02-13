@@ -4,20 +4,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lprakapovich.blog.publicationservice.api.dto.BlogDto;
 import com.lprakapovich.blog.publicationservice.api.dto.BlogViewDto;
 import com.lprakapovich.blog.publicationservice.api.dto.UpdateBlogDto;
-import com.lprakapovich.blog.publicationservice.exception.BlogIdMismatchException;
 import com.lprakapovich.blog.publicationservice.model.*;
 import com.lprakapovich.blog.publicationservice.service.BlogService;
 import com.lprakapovich.blog.publicationservice.service.CategoryService;
 import com.lprakapovich.blog.publicationservice.service.SubscriptionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
 
-import static com.lprakapovich.blog.publicationservice.util.BlogIdResolver.resolveBlogIdFromPrincipal;
+import static com.lprakapovich.blog.publicationservice.util.BlogIdResolver.resolveUsernameFromPrincipal;
 
 @Controller
 @RequestMapping("/publication-service/blogs")
@@ -31,9 +30,13 @@ class BlogRestEndpoint {
 
     @PutMapping("/{id}")
     public ResponseEntity<BlogDto> updateBlog(@PathVariable String id, @RequestBody UpdateBlogDto blogDto) {
-        String blogId = resolveBlogId(id);
-        Blog blog = blogService.updateBlog(blogId, blogDto.getName(), blogDto.getDescription());
-        return ResponseEntity.ok(map(blog));
+        checkBlog(id);
+        Blog blog = Blog.builder()
+                .description(blogDto.getDescription())
+                .name(blogDto.getName())
+                .build();
+        Blog updatedBlog = blogService.updateBlog(id, blog);
+        return ResponseEntity.ok(map(updatedBlog));
     }
 
     @GetMapping
@@ -43,7 +46,6 @@ class BlogRestEndpoint {
 
     @GetMapping("/{id}")
     public ResponseEntity<BlogViewDto> getBlogView(@PathVariable String id) {
-        blogService.validateExistence(id);
         Blog blog = blogService.getById(id);
         List<Subscription> subscriptions = subscriptionService.getAllBlogSubscriptions(id);
         List<Subscription> subscribers = subscriptionService.getAllBlogSubscribers(id);
@@ -59,13 +61,15 @@ class BlogRestEndpoint {
         return ResponseEntity.ok(blogViewDto);
     }
 
-    private String resolveBlogId(String id) {
-        String blogId = resolveBlogIdFromPrincipal();
-        blogService.validateExistence(blogId);
-        if (!id.equals(blogId)) {
-            throw new BlogIdMismatchException();
-        }
-        return blogId;
+    @PostMapping("/validate")
+    public ResponseEntity<?> validateBlog(@RequestParam String blogId) {
+        HttpStatus responseStatus =  blogService.existsById(blogId) ? HttpStatus.CONFLICT : HttpStatus.OK;
+        return ResponseEntity.status(responseStatus).build();
+    }
+
+    private void checkBlog(String id) {
+        String authenticatedUser = resolveUsernameFromPrincipal();
+        blogService.validateExistence(id, authenticatedUser);
     }
 
     private BlogDto map(Blog blog) {

@@ -6,7 +6,7 @@ public class BlogIdResolver {
 
     private BlogIdResolver() {}
 
-    public static String resolveBlogIdFromPrincipal() {
+    public static String resolveUsernameFromPrincipal() {
         return SecurityContextHolderSubjectResolver.getPrincipalSubject();
     }
 }

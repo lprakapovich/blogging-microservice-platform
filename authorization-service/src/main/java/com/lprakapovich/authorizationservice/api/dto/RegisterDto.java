@@ -12,4 +12,7 @@ public class RegisterDto {
 
     @NotBlank(message = "Password cannot be empty")
     private String password;
+
+    @NotBlank(message = "Blog URI cannot be empty")
+    private String blogUri;
 }

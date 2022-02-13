@@ -8,8 +8,10 @@ import lombok.Data;
 public class UserCreatedEvent {
 
     private String username;
+    private String blogUri;
 
-    public UserCreatedEvent(UserCreatedDetails userCreatedDetails) {
-        this.username = userCreatedDetails.getUsername();
+    public UserCreatedEvent(String username, String blogUri) {
+        this.username = username;
+        this.blogUri = blogUri;
     }
 }

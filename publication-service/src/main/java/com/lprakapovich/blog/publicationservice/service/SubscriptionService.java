@@ -19,9 +19,9 @@ public class SubscriptionService {
         return createdSubscription.getId();
     }
 
-    public void deleteSubscription(Subscription subscription) {
-        checkSubscription(subscription.getId());
-        subscriptionRepository.deleteById(subscription.getId());
+    public void deleteSubscription(Subscription.SubscriptionId id) {
+        checkSubscription(id);
+        subscriptionRepository.deleteById(id);
     }
 
     public List<Subscription> getAllBlogSubscriptions(String blogId) {
