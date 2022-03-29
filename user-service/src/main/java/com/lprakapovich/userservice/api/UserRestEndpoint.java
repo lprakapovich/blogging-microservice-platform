@@ -3,10 +3,9 @@ package com.lprakapovich.userservice.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lprakapovich.userservice.doman.User;
-import com.lprakapovich.userservice.event.UserCreatedEvent;
 import com.lprakapovich.userservice.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,14 +18,18 @@ public class UserRestEndpoint {
 
     private final UserService userService;
     private final ObjectMapper objectMapper;
-    private final ApplicationEventPublisher applicationEventPublisher;
 
     @PostMapping
-    public ResponseEntity<?> createUser(@RequestBody UserDto userDto) {
+    public ResponseEntity<Void> createUser(@RequestBody UserDto userDto) {
         User user = objectMapper.convertValue(userDto, User.class);
         URI location = URI.create(userService.createUser(user).toString());
-        applicationEventPublisher.publishEvent(new UserCreatedEvent(userDto.getUsername(), userDto.getBlogUri()));
         return ResponseEntity.created(location).build();
+    }
+
+    @PostMapping("/check")
+    public ResponseEntity<Void> checkExistence(@RequestParam String username) {
+        HttpStatus responseStatus = userService.existsByUsername(username) ? HttpStatus.CONFLICT : HttpStatus.OK;
+        return ResponseEntity.status(responseStatus).build();
     }
 
     @GetMapping("/{username}")

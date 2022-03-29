@@ -3,20 +3,25 @@ package com.lprakapovich.blog.publicationservice.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lprakapovich.blog.publicationservice.api.dto.BlogDto;
 import com.lprakapovich.blog.publicationservice.api.dto.BlogViewDto;
+import com.lprakapovich.blog.publicationservice.api.dto.CreateBlogDto;
 import com.lprakapovich.blog.publicationservice.api.dto.UpdateBlogDto;
-import com.lprakapovich.blog.publicationservice.model.*;
+import com.lprakapovich.blog.publicationservice.model.Blog;
+import com.lprakapovich.blog.publicationservice.model.Blog.BlogId;
+import com.lprakapovich.blog.publicationservice.model.Category;
 import com.lprakapovich.blog.publicationservice.service.BlogService;
 import com.lprakapovich.blog.publicationservice.service.CategoryService;
 import com.lprakapovich.blog.publicationservice.service.SubscriptionService;
+import com.lprakapovich.blog.publicationservice.util.BlogOwnershipValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
-import static com.lprakapovich.blog.publicationservice.util.BlogIdResolver.resolveUsernameFromPrincipal;
+import static com.lprakapovich.blog.publicationservice.util.AuthenticatedUserResolver.resolveUsernameFromPrincipal;
 
 @Controller
 @RequestMapping("/publication-service/blogs")
@@ -24,19 +29,42 @@ import static com.lprakapovich.blog.publicationservice.util.BlogIdResolver.resol
 class BlogRestEndpoint {
 
     private final BlogService blogService;
-    private final SubscriptionService subscriptionService;
     private final CategoryService categoryService;
+    private final SubscriptionService subscriptionService;
+    private final BlogOwnershipValidator blogOwnershipValidator;
     private final ObjectMapper mapper;
 
-    @PutMapping("/{id}")
-    public ResponseEntity<BlogDto> updateBlog(@PathVariable String id, @RequestBody UpdateBlogDto blogDto) {
-        checkBlog(id);
-        Blog blog = Blog.builder()
+    @PostMapping
+    public ResponseEntity<URI> createBlog(@RequestBody CreateBlogDto blogDto) {
+        BlogId blogId = new BlogId(blogDto.getId(), resolveUsernameFromPrincipal());
+        Blog blog = Blog.builder().id(blogId).build();
+        BlogId created = blogService.createBlog(blog);
+        return ResponseEntity.created(
+                URI.create(String.join(",", created.getId(), created.getUsername()))).build();
+    }
+
+    @PutMapping("/{id},{username}")
+    public ResponseEntity<BlogDto> updateBlog(@PathVariable String id,
+                                              @PathVariable String username,
+                                              @RequestBody UpdateBlogDto blogDto) {
+        BlogId blogId = new BlogId(id, username);
+        blogOwnershipValidator.validate(blogId);
+        Blog updated = Blog.builder()
                 .description(blogDto.getDescription())
-                .name(blogDto.getName())
+                .displayName(blogDto.getDisplayName())
                 .build();
-        Blog updatedBlog = blogService.updateBlog(id, blog);
+        Blog updatedBlog = blogService.updateBlog(blogId, updated);
         return ResponseEntity.ok(map(updatedBlog));
+    }
+
+    @DeleteMapping("/{id},{username}")
+    public ResponseEntity<Void> deleteBlog(@PathVariable String id,
+                                           @PathVariable String username) {
+
+        BlogId blogId = new BlogId(id, username);
+        blogOwnershipValidator.validate(blogId);
+        blogService.deleteBlog(blogId);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping
@@ -44,32 +72,35 @@ class BlogRestEndpoint {
         return ResponseEntity.ok(blogService.getAll());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<BlogViewDto> getBlogView(@PathVariable String id) {
-        Blog blog = blogService.getById(id);
-        List<Subscription> subscriptions = subscriptionService.getAllBlogSubscriptions(id);
-        List<Subscription> subscribers = subscriptionService.getAllBlogSubscribers(id);
-        List<Category> categories = categoryService.getAllByBlogId(id);
+    @GetMapping("/owned")
+    public ResponseEntity<List<Blog>> getUserBlogs() {
+        return ResponseEntity.ok(blogService.getAllByUsername());
+    }
+
+    @GetMapping("/{id},{username}")
+    public ResponseEntity<BlogViewDto> getBlogView(@PathVariable String id,
+                                                   @PathVariable String username) {
+        BlogId blogId = new BlogId(id, username);
+        Blog blog = blogService.getById(blogId);
+        List<Category> categories = categoryService.getByBlogId(blogId);
+        int subscribersNumber = subscriptionService.getNumberOfSubscribers(blogId);
+        int subscriptionsNumber = subscriptionService.getNumberOfSubscriptions(blogId);
+
         BlogViewDto blogViewDto = new BlogViewDto(
-                id,
-                blog.getName(),
+                blog.getId(),
+                blog.getDisplayName(),
                 blog.getDescription(),
                 categories,
-                subscriptions.size(),
-                subscribers.size()
+                subscriptionsNumber,
+                subscribersNumber
         );
         return ResponseEntity.ok(blogViewDto);
     }
 
-    @PostMapping("/validate")
-    public ResponseEntity<?> validateBlog(@RequestParam String blogId) {
-        HttpStatus responseStatus =  blogService.existsById(blogId) ? HttpStatus.CONFLICT : HttpStatus.OK;
+    @PostMapping("/check")
+    public ResponseEntity<?> checkExistence(@RequestParam String blogId) {
+        HttpStatus responseStatus =  blogService.exists(blogId) ? HttpStatus.CONFLICT : HttpStatus.OK;
         return ResponseEntity.status(responseStatus).build();
-    }
-
-    private void checkBlog(String id) {
-        String authenticatedUser = resolveUsernameFromPrincipal();
-        blogService.validateExistence(id, authenticatedUser);
     }
 
     private BlogDto map(Blog blog) {

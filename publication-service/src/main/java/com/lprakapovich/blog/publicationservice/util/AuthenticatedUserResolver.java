@@ -2,9 +2,9 @@ package com.lprakapovich.blog.publicationservice.util;
 
 import com.lprakapovich.blog.publicationservice.security.SecurityContextHolderSubjectResolver;
 
-public class BlogIdResolver {
+public class AuthenticatedUserResolver {
 
-    private BlogIdResolver() {}
+    private AuthenticatedUserResolver() {}
 
     public static String resolveUsernameFromPrincipal() {
         return SecurityContextHolderSubjectResolver.getPrincipalSubject();

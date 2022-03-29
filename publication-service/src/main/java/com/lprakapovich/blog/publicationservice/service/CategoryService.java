@@ -3,6 +3,7 @@ package com.lprakapovich.blog.publicationservice.service;
 import com.lprakapovich.blog.publicationservice.exception.CategoryNotFoundException;
 import com.lprakapovich.blog.publicationservice.exception.DuplicatedCategoryNameException;
 import com.lprakapovich.blog.publicationservice.model.Blog;
+import com.lprakapovich.blog.publicationservice.model.Blog.BlogId;
 import com.lprakapovich.blog.publicationservice.model.Category;
 import com.lprakapovich.blog.publicationservice.repository.CategoryRepository;
 import com.lprakapovich.blog.publicationservice.repository.PublicationRepository;
@@ -21,44 +22,54 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
 
     @Transactional
-    public long createCategory(Category category, String blogId) {
-        Blog blog = blogService.getById(blogId);
-        checkCategory(category.getName(), blogId);
-        Category createdCategory = categoryRepository.save(category);
-        blog.getCategories().add(createdCategory);
-        return createdCategory.getId();
+    public long createCategory(BlogId id, String categoryName) {
+        Blog blog = blogService.getById(id);
+        checkUniqueness(categoryName, id);
+        Category category = new Category();
+        category.setName(categoryName);
+        category.setBlog(blog);
+        Category created = categoryRepository.save(category);
+        return created.getId();
     }
 
     @Transactional
-    public Category updateCategory(long categoryId, Category updatedCategory, String blogId) {
-        categoryRepository.updateCategoryName(updatedCategory.getName(), categoryId, blogId);
-        return getById(categoryId, blogId);
-    }
-
-    public List<Category> getAllByBlogId(String blogId) {
-        return categoryRepository.findByBlogId(blogId);
-    }
-
-    public Category getById(long id, String blogId) {
-        return categoryRepository.findByIdAndBlogId(id, blogId).orElseThrow(CategoryNotFoundException::new);
+    public void updateCategory(BlogId blogId, long categoryId, String categoryName) {
+        checkExistence(categoryId, blogId);
+        categoryRepository.updateCategoryName(categoryId, categoryName);
     }
 
     @Transactional
-    public void deleteCategory(long categoryId, String blogId) {
-        checkCategory(categoryId, blogId);
-        publicationRepository.findByCategory_IdAndBlog_Id(categoryId, blogId)
+    public void deleteCategory(BlogId blogId, long categoryId) {
+        checkExistence(categoryId, blogId);
+        publicationRepository
+                .findByCategory_IdAndBlog_Id(categoryId, blogId)
                 .forEach(publication -> publication.setCategory(null));
         categoryRepository.deleteById(categoryId);
     }
 
-    public void checkCategory(long id, String blogId) {
-        if (categoryRepository.findByIdAndBlogId(id, blogId).isEmpty()) {
+    public Category getById(long id) {
+        return categoryRepository.findById(id)
+                .orElseThrow(CategoryNotFoundException::new);
+    }
+
+    public Category getByIdAndBlogId(long id, BlogId blogId) {
+        return categoryRepository
+                .findByIdAndBlogId(id, blogId.getId(), blogId.getUsername())
+                .orElseThrow(CategoryNotFoundException::new);
+    }
+
+    public List<Category> getByBlogId(BlogId blogId) {
+        return categoryRepository.findByBlogId(blogId.getId(), blogId.getUsername());
+    }
+
+    public void checkExistence(long id, BlogId blogId) {
+        if (categoryRepository.findByIdAndBlogId(id, blogId.getId(), blogId.getUsername()).isEmpty()) {
             throw new CategoryNotFoundException();
         }
     }
 
-    public void checkCategory(String name, String blogId) {
-        if (categoryRepository.existsByNameAndBlogId(name, blogId)) {
+    public void checkUniqueness(String name, BlogId blogId) {
+        if (categoryRepository.existsByNameAndBlogId(name, blogId.getId(), blogId.getUsername())) {
             throw new DuplicatedCategoryNameException();
         }
     }

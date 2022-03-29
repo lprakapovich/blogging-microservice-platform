@@ -1,42 +1,41 @@
 package com.lprakapovich.blog.publicationservice.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.lprakapovich.blog.publicationservice.model.auditable.AuditableEntity;
+import com.lprakapovich.blog.publicationservice.model.auditable.BlogEntityListener;
+import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "blogs",
-        uniqueConstraints = @UniqueConstraint(name = "BlogIdUsernameConstraint", columnNames = {"id", "username"}),
-        indexes = @Index(name = "blogId_index", columnList = "id"))
+@EntityListeners(BlogEntityListener.class)
+@Table(name = "blogs")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Blog {
+public class Blog extends AuditableEntity {
 
-    @Id
-    private String id;
-
-    private String username;
-
-    private String name;
-
+    @EmbeddedId
+    private BlogId id;
+    private String displayName;
     private String description;
 
-    private LocalDateTime createdDateTime;
-
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "blog_id")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "blog")
     private List<Category> categories = new ArrayList<>();
 
-    @PrePersist
-    public void publicationPrePersist() {
-        this.createdDateTime = LocalDateTime.now();
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Embeddable
+    public static class BlogId implements Serializable {
+
+        @Column(name = "blog_id")
+        private String id;
+
+        @Column(name = "username")
+        private String username;
     }
 }

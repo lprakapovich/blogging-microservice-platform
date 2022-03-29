@@ -14,7 +14,7 @@ public class UserService {
     private final UserRepository userRepository;
 
     public Long createUser(User user) {
-        validateUniqueness(user.getUsername());
+        checkUniqueness(user.getUsername());
         return userRepository.save(user).getId();
     }
 
@@ -22,7 +22,11 @@ public class UserService {
         return userRepository.getByUsername(username).orElseThrow(UserNotFoundException::new);
     }
 
-    void validateUniqueness(String username) {
+    public boolean existsByUsername(String username) {
+        return userRepository.existsByUsername(username);
+    }
+
+    void checkUniqueness(String username) {
         if (userRepository.existsByUsername(username)) {
             throw new DuplicatedUsernameException();
         }

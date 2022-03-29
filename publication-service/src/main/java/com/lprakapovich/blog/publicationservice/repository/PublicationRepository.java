@@ -1,5 +1,6 @@
 package com.lprakapovich.blog.publicationservice.repository;
 
+import com.lprakapovich.blog.publicationservice.model.Blog.BlogId;
 import com.lprakapovich.blog.publicationservice.model.Publication;
 import com.lprakapovich.blog.publicationservice.model.Status;
 import org.springframework.data.domain.Pageable;
@@ -10,21 +11,21 @@ import java.util.Optional;
 
 public interface PublicationRepository extends PagingAndSortingRepository<Publication, Long> {
 
-    Optional<Publication> findByIdAndBlog_Id(Long publicationId, String blogId);
+    Optional<Publication> findByIdAndBlog_Id(long publicationId, BlogId blogId);
 
-    Optional<Publication> findByIdAndBlog_IdAndStatus(long publicationId, String subscriptionBlogId, Status status);
+    Optional<Publication> findByIdAndBlog_IdAndStatus(long publicationId, BlogId blogId, Status status);
 
-    List<Publication> findAllByBlog_Id(String id, Pageable pageable);
+    List<Publication> findAllByBlog_Id(BlogId blogId, Pageable pageable);
 
-    List<Publication> findAllByBlog_IdInAndStatus(List<String> ids, Status status, Pageable pageable);
+    List<Publication> findAllByBlog_IdInAndStatus(List<BlogId> ids, Status status, Pageable pageable);
 
-    List<Publication> findAllByBlog_IdAndStatus(String blogId, Status status, Pageable p);
+    List<Publication> findAllByBlog_IdAndStatus(BlogId blogId, Status status, Pageable p);
 
-    List<Publication> findAllByBlog_IdAndCategory_Id(String id, long categoryId, Pageable pageable);
+    List<Publication> findAllByBlog_IdAndCategoryId(BlogId blogId, long categoryId, Pageable pageable);
 
-    List<Publication> findAllByBlog_IdAndCategory_IdAndStatus(String blogId, long categoryId, Status status, Pageable pageable);
+    List<Publication> findAllByBlog_IdAndCategory_IdAndStatus(BlogId blogId, long categoryId, Status status, Pageable pageable);
 
-    List<Publication> findByCategory_IdAndBlog_Id(long categoryId, String blogId);
+    List<Publication> findByCategory_IdAndBlog_Id(long categoryId, BlogId blogId);
 
-    boolean existsByIdAndBlog_Id(long publicationId, String blogId);
+    boolean existsByIdAndBlog_Id(long publicationId, BlogId blogId);
 }

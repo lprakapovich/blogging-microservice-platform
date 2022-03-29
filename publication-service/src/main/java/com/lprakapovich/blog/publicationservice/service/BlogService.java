@@ -1,8 +1,9 @@
 package com.lprakapovich.blog.publicationservice.service;
 
 import com.lprakapovich.blog.publicationservice.exception.BlogNotFoundException;
-import com.lprakapovich.blog.publicationservice.exception.DuplicatedBlogException;
+import com.lprakapovich.blog.publicationservice.exception.DuplicatedBlogIdException;
 import com.lprakapovich.blog.publicationservice.model.Blog;
+import com.lprakapovich.blog.publicationservice.model.Blog.BlogId;
 import com.lprakapovich.blog.publicationservice.repository.BlogRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.lprakapovich.blog.publicationservice.util.BlogIdResolver.resolveUsernameFromPrincipal;
+import static com.lprakapovich.blog.publicationservice.util.AuthenticatedUserResolver.resolveUsernameFromPrincipal;
 
 @Service
 @RequiredArgsConstructor
@@ -18,19 +19,27 @@ public class BlogService {
 
     private final BlogRepository blogRepository;
 
-    public void createBlog(Blog blog) {
+    public BlogId createBlog(Blog blog) {
         if (blogRepository.existsById(blog.getId())) {
-            throw new DuplicatedBlogException();
+            throw new DuplicatedBlogIdException();
         }
-        blogRepository.save(blog);
+       return blogRepository.save(blog).getId();
     }
 
-    public Blog getById(String id) {
+    public Blog updateBlog(BlogId id, Blog updatedBlog) {
+        Blog blog = getById(id);
+        blog.setDisplayName(updatedBlog.getDisplayName());
+        blog.setDescription(updatedBlog.getDescription());
+        return blogRepository.save(blog);
+    }
+
+    public void deleteBlog(BlogId blogId) {
+        checkExistence(blogId);
+        blogRepository.deleteById(blogId);
+    }
+
+    public Blog getById(BlogId id) {
         return blogRepository.findById(id).orElseThrow(BlogNotFoundException::new);
-    }
-
-    public Blog getByIdAndUsername(String id, String username) {
-        return blogRepository.getByIdAndUsername(id, username).orElseThrow(BlogNotFoundException::new);
     }
 
     public List<Blog> getAll() {
@@ -39,39 +48,24 @@ public class BlogService {
         return blogs;
     }
 
-    public Blog updateBlog(String id, Blog updatedBlog) {
-        Blog blog = getById(id);
-        blog.setName(updatedBlog.getName());
-        blog.setDescription(updatedBlog.getDescription());
-        return blogRepository.save(blog);
+    public List<Blog> getAllByUsername() {
+        String username = resolveUsernameFromPrincipal();
+        return blogRepository.findById_Username(username);
     }
 
-    public boolean ownsBlog(String id) {
+    public boolean exists(String id) {
         String authenticatedUser = resolveUsernameFromPrincipal();
-        return blogRepository.existsByIdAndUsername(id, authenticatedUser);
+        BlogId blogId = new BlogId(id, authenticatedUser);
+        return blogRepository.existsById(blogId);
     }
 
-    public boolean existsById(String id) {
-        return blogRepository.existsById(id);
-    }
-
-    public boolean existsByIdAndUsername(String id, String username) {
-        return blogRepository.existsByIdAndUsername(id, username);
-    }
-
-    public void validateBlogOwnership(String id) {
+    public boolean isOwner(String id) {
         String authenticatedUser = resolveUsernameFromPrincipal();
-        validateExistence(id, authenticatedUser);
+        return blogRepository.existsById(new BlogId(id, authenticatedUser));
     }
 
-    public void validateExistence(String id) {
+    public void checkExistence(BlogId id) {
         if (!blogRepository.existsById(id)) {
-            throw new BlogNotFoundException();
-        }
-    }
-
-    public void validateExistence(String id, String username) {
-        if (!blogRepository.existsByIdAndUsername(id, username)) {
             throw new BlogNotFoundException();
         }
     }

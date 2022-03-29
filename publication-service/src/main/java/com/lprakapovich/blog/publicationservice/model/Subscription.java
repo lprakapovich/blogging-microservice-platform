@@ -1,40 +1,44 @@
 package com.lprakapovich.blog.publicationservice.model;
 
+import com.lprakapovich.blog.publicationservice.model.Blog.BlogId;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Embeddable;
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
+import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
+@Table(name = "subscriptions")
 @Data
 @NoArgsConstructor
 public class Subscription {
 
     @EmbeddedId
-    SubscriptionId id;
+    private SubscriptionId id;
 
-    public Subscription(String blogId, String subscriberBlogId) {
-        this.id = new SubscriptionId(blogId, subscriberBlogId);
+    public Subscription(BlogId subscriber, BlogId subscription) {
+        this.id = new SubscriptionId(subscriber, subscription);
     }
 
     @Embeddable
     @Getter
-    @EqualsAndHashCode
+    @Data
     public static class SubscriptionId implements Serializable {
 
-        private String blogId;
-        private String subscriberBlogId;
+        @AttributeOverride(name="id", column= @Column(name="subscriberBlogId"))
+        @AttributeOverride(name="username", column= @Column(name="subscriberUsername"))
+        private BlogId subscriber;
+
+        @AttributeOverride(name="id", column= @Column(name="subscriptionBlogId"))
+        @AttributeOverride(name="username", column= @Column(name="subscriptionUsername"))
+        private BlogId subscription;
 
         protected SubscriptionId() { }
 
-        public SubscriptionId(String blogId, String subscriberBlogId) {
-            this.blogId = blogId;
-            this.subscriberBlogId = subscriberBlogId;
+        public SubscriptionId(BlogId subscriber, BlogId subscription) {
+            this.subscriber = subscriber;
+            this.subscription = subscription;
         }
     }
 }

@@ -1,20 +1,19 @@
 package com.lprakapovich.blog.publicationservice.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.lprakapovich.blog.publicationservice.model.auditable.AuditableEntity;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "publications", indexes = {
-        @Index(name = "publicationId_blogId_index", columnList = "id, blog_id"),
-        @Index(name = "blogId_index", columnList = "blog_id")})
+@Table(name = "publications")
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-public class Publication {
+public class Publication extends AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,14 +23,9 @@ public class Publication {
     private String subHeader;
     private Status status;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-    private LocalDateTime createdDateTime;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-    private LocalDateTime lastUpdatedDateTime;
-
-    @ManyToOne
-    @JoinColumn(name = "blog_id")
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="blog_id", referencedColumnName = "blog_id")
+    @JoinColumn(name="blog_username", referencedColumnName = "username")
     private Blog blog;
 
     @ManyToOne
@@ -40,14 +34,4 @@ public class Publication {
 
     @Type(type = "com.lprakapovich.blog.publicationservice.postgres.ContentJsonbType")
     private Content content;
-
-    @PrePersist
-    public void publicationPrePersist() {
-        this.createdDateTime = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    public void publicationPreUpdate() {
-        this.lastUpdatedDateTime = LocalDateTime.now();
-    }
 }

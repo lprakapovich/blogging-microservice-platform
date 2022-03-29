@@ -1,30 +1,26 @@
 package com.lprakapovich.blog.publicationservice.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
 @Entity
-@Table(name = "categories",
-        uniqueConstraints = @UniqueConstraint(name = "CategoryNamePerBlogConstraint", columnNames = {"name", "blog_id"}),
-        indexes = @Index(name = "categoryId_blogId_index", columnList = "id, blog_id")
-)
+@Table(name = "categories")
 @Data
 @NoArgsConstructor
 public class Category {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     private String name;
 
-    public Category(String name) {
-        this.name = name;
-    }
-
-    public Category(Category category) {
-        this.name = category.name;
-    }
+    @ManyToOne
+    @JoinColumn(name="blog_id", referencedColumnName = "blog_id")
+    @JoinColumn(name="username", referencedColumnName = "username")
+    @JsonIgnore
+    private Blog blog;
 }

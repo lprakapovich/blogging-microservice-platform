@@ -15,7 +15,6 @@ public class AuthService {
 
     private final AuthenticationManager authenticationManager;
 
-
     public void authenticate(String username, String password) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));

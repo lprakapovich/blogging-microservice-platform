@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 public class UpdateBlogDto {
 
-    private String name;
+    private String displayName;
     private String description;
 }

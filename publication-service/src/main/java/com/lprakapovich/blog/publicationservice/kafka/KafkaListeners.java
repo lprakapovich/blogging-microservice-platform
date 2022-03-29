@@ -20,11 +20,11 @@ public class KafkaListeners {
 
     @KafkaListener(topics = KafkaTopicConfig.USER_CREATED_EVENT_TOPIC, containerFactory = "concurrentKafkaListenerContainerFactory")
     void handleUserRegisteredEvent(UserRegisteredEvent event) {
-        Blog blog = Blog.builder()
-                .id(event.getBlogUri())
-                .username(event.getUsername())
-                .build();
-        blogService.createBlog(blog);
+//        Blog blog = Blog.builder()
+//                .id(event.getBlogUri())
+//                .username(event.getUsername())
+//                .build();
+//        blogService.createBlog(blog);
     }
 
     @KafkaListener(topics = KafkaTopicConfig.PUBLICATION_CREATED_EVENT_TOPIC, groupId = "${spring.kafka.consumer.group-id}", containerFactory = "concurrentKafkaListenerContainerFactory")

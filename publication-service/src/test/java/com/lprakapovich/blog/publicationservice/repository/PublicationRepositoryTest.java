@@ -44,6 +44,6 @@ public class PublicationRepositoryTest {
         assertThat(persistedPublicationById.getStatus()).isEqualTo(persistedPublication.getStatus());
         assertThat(persistedPublicationById.getContent()).isEqualTo(persistedPublication.getContent());
         assertThat(persistedPublicationById.getCreatedDateTime()).isBefore(LocalDateTime.now());
-        assertThat(persistedPublicationById.getLastUpdatedDateTime()).isNull();
+        assertThat(persistedPublicationById.getUpdatedDateTime()).isNull();
     }
 }

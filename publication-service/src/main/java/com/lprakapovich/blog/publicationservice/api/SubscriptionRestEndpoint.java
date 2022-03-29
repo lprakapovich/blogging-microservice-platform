@@ -2,72 +2,88 @@ package com.lprakapovich.blog.publicationservice.api;
 
 import com.lprakapovich.blog.publicationservice.api.dto.SubscriberDto;
 import com.lprakapovich.blog.publicationservice.api.dto.SubscriptionDto;
+import com.lprakapovich.blog.publicationservice.model.Blog.BlogId;
 import com.lprakapovich.blog.publicationservice.model.Subscription;
+import com.lprakapovich.blog.publicationservice.model.Subscription.SubscriptionId;
 import com.lprakapovich.blog.publicationservice.service.BlogService;
 import com.lprakapovich.blog.publicationservice.service.SubscriptionService;
+import com.lprakapovich.blog.publicationservice.util.BlogOwnershipValidator;
+import com.lprakapovich.blog.publicationservice.util.UriBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.lprakapovich.blog.publicationservice.util.BlogIdResolver.resolveUsernameFromPrincipal;
-
 @RestController
-@RequestMapping("/publication-service/uri/{blogId}/subscriptions")
+@RequestMapping("/publication-service/{blogId},{username}/subscriptions")
 @RequiredArgsConstructor
 class SubscriptionRestEndpoint {
 
     private final SubscriptionService subscriptionService;
     private final BlogService blogService;
+    private final BlogOwnershipValidator blogOwnershipValidator;
 
     @PostMapping
     public ResponseEntity<URI> createSubscription(@PathVariable String blogId,
-                                                  @Valid @RequestBody SubscriptionDto subscriptionDto) {
-        checkBlog(blogId);
-        String subscribeToId = subscriptionDto.getSubscribeToId();
-        blogService.validateExistence(subscribeToId);
-        Subscription subscription = new Subscription(subscribeToId, blogId);
-        Subscription.SubscriptionId subscriptionId = subscriptionService.createSubscription(subscription);
-        URI uri = URI.create(String.join(",", subscriptionId.getBlogId(), subscriptionId.getSubscriberBlogId()));
+                                                  @PathVariable String username,
+                                                  @RequestBody SubscriptionDto subscriptionDto) {
+
+        BlogId subscriberId = new BlogId(blogId, username);
+        blogOwnershipValidator.validate(subscriberId);
+        BlogId subscribeToId = subscriptionDto.getSubscription();
+        blogService.checkExistence(subscribeToId);
+
+        Subscription subscription = new Subscription(subscriberId, subscribeToId);
+        SubscriptionId subscriptionId = subscriptionService.createSubscription(subscription);
+        URI uri = UriBuilder.build(
+                subscriptionId.getSubscriber().getId(),
+                subscriptionId.getSubscriber().getUsername(),
+                subscriptionId.getSubscription().getId(),
+                subscriptionId.getSubscription().getUsername());
+
         return ResponseEntity.created(uri).build();
     }
 
     @GetMapping
-    public ResponseEntity<List<SubscriptionDto>> getSubscriptions(@PathVariable String blogId) {
-        checkBlog(blogId);
-        List<Subscription> subscriptions = subscriptionService.getAllBlogSubscriptions(blogId);
+    public ResponseEntity<List<SubscriptionDto>> getSubscriptions(@PathVariable String blogId,
+                                                                  @PathVariable String username) {
+        BlogId id = new BlogId(blogId, username);
+        blogOwnershipValidator.validate(id);
+        List<Subscription> subscriptions = subscriptionService.getAllBlogSubscriptions(id);
         List<SubscriptionDto> subscriberDtos = subscriptions
                 .stream()
-                .map(subscription -> new SubscriptionDto(subscription.getId().getBlogId()))
+                .map(subscription -> new SubscriptionDto(
+                        subscription.getId().getSubscription()))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(subscriberDtos);
     }
 
     @GetMapping("/subscribers")
-    public ResponseEntity<List<SubscriberDto>> getSubscribers(@PathVariable String blogId) {
-        checkBlog(blogId);
-        List<Subscription> subscriptions = subscriptionService.getAllBlogSubscribers(blogId);
+    public ResponseEntity<List<SubscriberDto>> getSubscribers(@PathVariable String blogId,
+                                                              @PathVariable String username) {
+        BlogId id = new BlogId(blogId, username);
+        blogOwnershipValidator.validate(id);
+        List<Subscription> subscriptions = subscriptionService.getAllBlogSubscribers(id);
         List<SubscriberDto> subscriberDtos = subscriptions.stream()
-                .map(subscription -> new SubscriberDto(subscription.getId().getSubscriberBlogId()))
+                .map(subscription -> new SubscriberDto(
+                        subscription.getId().getSubscriber()))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(subscriberDtos);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{subscriptionBlogId},{subscriptionUsername}")
     public ResponseEntity<Void> deleteSubscription(@PathVariable String blogId,
-                                                   @PathVariable(value = "id") String blogIdToUnsubscribe) {
-        checkBlog(blogId);
-        subscriptionService.deleteSubscription(new Subscription.SubscriptionId(blogIdToUnsubscribe, blogId));
+                                                   @PathVariable String username,
+                                                   @PathVariable String subscriptionBlogId,
+                                                   @PathVariable String subscriptionUsername) {
+
+        BlogId id = new BlogId(blogId, username);
+        blogOwnershipValidator.validate(id);
+        BlogId subscriptionId = new BlogId(subscriptionBlogId, subscriptionUsername);
+        subscriptionService.deleteSubscription(new SubscriptionId(id, subscriptionId));
         return ResponseEntity.noContent().build();
-    }
-
-
-    private void checkBlog(String blogId) {
-        String authenticatedUsername = resolveUsernameFromPrincipal();
-        blogService.validateExistence(blogId, authenticatedUsername);
     }
 }

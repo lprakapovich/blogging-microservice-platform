@@ -12,7 +12,4 @@ public class UserDto {
 
     @NotBlank(message = "Password cannot be blank")
     private String password;
-
-    @NotBlank(message = "Blog URI cannot be empty")
-    private String blogUri;
 }

@@ -3,11 +3,9 @@ package com.lprakapovich.blog.publicationservice.repository;
 import com.lprakapovich.blog.publicationservice.model.Blog;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-import java.util.Optional;
+import java.util.List;
 
-public interface BlogRepository extends PagingAndSortingRepository<Blog, String> {
+public interface BlogRepository extends PagingAndSortingRepository<Blog, Blog.BlogId> {
 
-    Optional<Blog> getByIdAndUsername(String id, String username);
-
-    boolean existsByIdAndUsername(String id, String username);
+    List<Blog> findById_Username(String username);
 }
