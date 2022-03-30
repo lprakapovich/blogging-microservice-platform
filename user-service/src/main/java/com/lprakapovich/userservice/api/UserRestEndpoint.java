@@ -26,10 +26,11 @@ public class UserRestEndpoint {
         return ResponseEntity.created(location).build();
     }
 
-    @PostMapping("/check")
-    public ResponseEntity<Void> checkExistence(@RequestParam String username) {
-        HttpStatus responseStatus = userService.existsByUsername(username) ? HttpStatus.CONFLICT : HttpStatus.OK;
-        return ResponseEntity.status(responseStatus).build();
+    @GetMapping("/check")
+    public ResponseEntity<?> checkUsernameUniqueness(@RequestParam String username) {
+        return userService.existsByUsername(username) ?
+                ResponseEntity.status(HttpStatus.CONFLICT).body("This username is already taken") :
+                ResponseEntity.ok().build();
     }
 
     @GetMapping("/{username}")
