@@ -8,4 +8,6 @@ import java.util.List;
 public interface BlogRepository extends PagingAndSortingRepository<Blog, Blog.BlogId> {
 
     List<Blog> findById_Username(String username);
+
+    List<Blog> findByDescriptionContainsOrId_IdContains(String description, String id);
 }

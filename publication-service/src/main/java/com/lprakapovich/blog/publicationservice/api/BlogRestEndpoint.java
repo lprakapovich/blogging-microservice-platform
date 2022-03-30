@@ -12,15 +12,22 @@ import com.lprakapovich.blog.publicationservice.service.BlogService;
 import com.lprakapovich.blog.publicationservice.service.CategoryService;
 import com.lprakapovich.blog.publicationservice.service.SubscriptionService;
 import com.lprakapovich.blog.publicationservice.util.BlogOwnershipValidator;
+import com.lprakapovich.blog.publicationservice.util.UriBuilder;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotBlank;
 import java.net.URI;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import static com.lprakapovich.blog.publicationservice.api.paging.PageableDefaultValues.DEFAULT_PAGE_NUMBER;
+import static com.lprakapovich.blog.publicationservice.api.paging.PageableDefaultValues.DEFAULT_PAGE_SIZE;
 import static com.lprakapovich.blog.publicationservice.util.AuthenticatedUserResolver.resolveUsernameFromPrincipal;
 
 @Controller
@@ -39,8 +46,8 @@ class BlogRestEndpoint {
         BlogId blogId = new BlogId(blogDto.getId(), resolveUsernameFromPrincipal());
         Blog blog = Blog.builder().id(blogId).build();
         BlogId created = blogService.createBlog(blog);
-        return ResponseEntity.created(
-                URI.create(String.join(",", created.getId(), created.getUsername()))).build();
+        URI uri = UriBuilder.build(created.getId(), created.getUsername());
+        return ResponseEntity.created(uri).build();
     }
 
     @PutMapping("/{id},{username}")
@@ -68,13 +75,14 @@ class BlogRestEndpoint {
     }
 
     @GetMapping
-    public ResponseEntity<List<Blog>> getBlogs() {
-        return ResponseEntity.ok(blogService.getAll());
+    public ResponseEntity<List<BlogDto>> getBlogsBySearchCriteria(@RequestParam(required = false) String search) {
+        List<Blog> blogs = blogService.getAllBySearchCriteria(search);
+        return ResponseEntity.ok(map(blogs));
     }
 
     @GetMapping("/owned")
-    public ResponseEntity<List<Blog>> getUserBlogs() {
-        return ResponseEntity.ok(blogService.getAllByUsername());
+    public ResponseEntity<List<BlogId>> getUserBlogsIds() {
+        return ResponseEntity.ok(blogService.getAllIdsByUsername());
     }
 
     @GetMapping("/{id},{username}")
@@ -105,5 +113,11 @@ class BlogRestEndpoint {
 
     private BlogDto map(Blog blog) {
         return mapper.convertValue(blog, BlogDto.class);
+    }
+
+    private List<BlogDto> map(List<Blog> blogs) {
+        return blogs.stream()
+                .map(b -> mapper.convertValue(b, BlogDto.class))
+                .collect(Collectors.toList());
     }
 }
