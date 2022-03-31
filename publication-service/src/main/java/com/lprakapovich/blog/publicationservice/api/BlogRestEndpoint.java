@@ -71,7 +71,8 @@ class BlogRestEndpoint {
 
     @GetMapping("/search")
     public ResponseEntity<List<BlogDto>> getBlogsBySearchCriteria(@RequestParam(required = false) String criteria) {
-        List<Blog> blogs = blogService.getAllBySearchCriteria(criteria);
+        String authenticatedUser = resolveUsernameFromPrincipal();
+        List<Blog> blogs = blogService.getAllBySearchCriteria(criteria, authenticatedUser);
         return ResponseEntity.ok(map(blogs));
     }
 

@@ -9,5 +9,5 @@ public interface BlogRepository extends PagingAndSortingRepository<Blog, Blog.Bl
 
     List<Blog> findById_Username(String username);
 
-    List<Blog> findByDescriptionContainsOrId_IdContains(String description, String id);
+    List<Blog> findByDescriptionContainsOrId_IdContainsAndId_UsernameNot(String description, String id, String authenticatedUser);
 }

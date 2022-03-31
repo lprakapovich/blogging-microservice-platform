@@ -80,7 +80,7 @@ public class BlogService {
         }
     }
 
-    public List<Blog> getAllBySearchCriteria(String search) {
-        return blogRepository.findByDescriptionContainsOrId_IdContains(search, search);
+    public List<Blog> getAllBySearchCriteria(String search, String authenticatedUser) {
+        return blogRepository.findByDescriptionContainsOrId_IdContainsAndId_UsernameNot(search, search, authenticatedUser);
     }
 }
