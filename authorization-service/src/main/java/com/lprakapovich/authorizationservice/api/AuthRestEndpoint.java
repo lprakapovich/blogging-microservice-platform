@@ -29,7 +29,7 @@ public class AuthRestEndpoint {
     private final ApplicationPasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
-    ResponseEntity<AuthDto> login(@Valid @RequestBody LoginDto request) {
+    public ResponseEntity<AuthDto> login(@Valid @RequestBody LoginDto request) {
         authService.authenticate(request.getUsername(), request.getPassword());
         String token = jwtUtil.generateToken(request.getUsername());
         return ResponseEntity.ok(new AuthDto(token));
@@ -46,7 +46,7 @@ public class AuthRestEndpoint {
     }
 
     @PostMapping("/validate")
-    ResponseEntity<String> validateToken(@RequestParam String token) {
+    public ResponseEntity<String> validateToken(@RequestParam String token) {
         // TODO handle builtin exceptions thrown during claims resolution
         if (!jwtUtil.isTokenValid(token)) {
             throw new JwtException(INVALID);
