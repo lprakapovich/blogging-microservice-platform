@@ -17,7 +17,11 @@ public class RouteValidator {
     private static final List<String> openApiEndpoints = List.of(REGISTER_URL,
             LOGIN_URL, VALIDATE_URL, VALIDATE_USERNAME_URL);
 
-    public Predicate<ServerHttpRequest> mustBeSecured = httpServletRequest ->
+    private static final Predicate<ServerHttpRequest> mustBeSecured = httpServletRequest ->
             openApiEndpoints.stream().noneMatch(uri ->
                     httpServletRequest.getURI().getPath().contains(uri));
+
+    public Predicate<ServerHttpRequest> getSecurityPredicate() {
+        return mustBeSecured;
+    }
 }
