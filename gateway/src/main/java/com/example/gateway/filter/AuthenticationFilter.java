@@ -29,7 +29,7 @@ public class AuthenticationFilter implements GlobalFilter {
 
         ServerHttpRequest request = exchange.getRequest();
 
-        if (routeValidator.mustBeSecured.test(request)) {
+        if (routeValidator.getSecurityPredicate().test(request)) {
             if (isAuthHeaderMissing(request)) {
                 return missingAuthHeader(exchange);
             } else if (notBearerAuthentication(request)) {
