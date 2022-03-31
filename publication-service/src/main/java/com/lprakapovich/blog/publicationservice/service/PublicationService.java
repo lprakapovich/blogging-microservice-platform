@@ -114,6 +114,10 @@ public class PublicationService {
 //                .orElseThrow(PublicationNotFoundException::new);
 //    }
 
+    public List<Publication> getPublicationsBySearchCriteria(String search, String authenticatedUser) {
+        return publicationRepository.findByStatusAndHeaderContainsAndBlog_Id_UsernameNot(Status.PUBLISHED, search, authenticatedUser);
+    }
+
     public Publication assignCategoryToPublication(BlogId blogId, long publicationId, long categoryId) {
         checkCategoryExistence(blogId, categoryId);
         Publication publication = getById(publicationId, blogId);

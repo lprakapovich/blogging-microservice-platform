@@ -27,5 +27,8 @@ public interface PublicationRepository extends PagingAndSortingRepository<Public
 
     List<Publication> findByCategory_IdAndBlog_Id(long categoryId, BlogId blogId);
 
+    List<Publication> findByStatusAndHeaderContainsAndBlog_Id_UsernameNot(Status status, String search, String username);
+
     boolean existsByIdAndBlog_Id(long publicationId, BlogId blogId);
+
 }

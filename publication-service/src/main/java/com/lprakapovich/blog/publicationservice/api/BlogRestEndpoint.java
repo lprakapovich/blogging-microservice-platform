@@ -14,20 +14,15 @@ import com.lprakapovich.blog.publicationservice.service.SubscriptionService;
 import com.lprakapovich.blog.publicationservice.util.BlogOwnershipValidator;
 import com.lprakapovich.blog.publicationservice.util.UriBuilder;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.constraints.NotBlank;
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.lprakapovich.blog.publicationservice.api.paging.PageableDefaultValues.DEFAULT_PAGE_NUMBER;
-import static com.lprakapovich.blog.publicationservice.api.paging.PageableDefaultValues.DEFAULT_PAGE_SIZE;
 import static com.lprakapovich.blog.publicationservice.util.AuthenticatedUserResolver.resolveUsernameFromPrincipal;
 
 @Controller
@@ -74,9 +69,9 @@ class BlogRestEndpoint {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping
-    public ResponseEntity<List<BlogDto>> getBlogsBySearchCriteria(@RequestParam(required = false) String search) {
-        List<Blog> blogs = blogService.getAllBySearchCriteria(search);
+    @GetMapping("/search")
+    public ResponseEntity<List<BlogDto>> getBlogsBySearchCriteria(@RequestParam(required = false) String criteria) {
+        List<Blog> blogs = blogService.getAllBySearchCriteria(criteria);
         return ResponseEntity.ok(map(blogs));
     }
 
@@ -106,7 +101,7 @@ class BlogRestEndpoint {
     }
 
     @PostMapping("/check")
-    public ResponseEntity<?> checkExistence(@RequestParam String blogId) {
+    public ResponseEntity<Void> checkExistence(@RequestParam String blogId) {
         HttpStatus responseStatus =  blogService.exists(blogId) ? HttpStatus.CONFLICT : HttpStatus.OK;
         return ResponseEntity.status(responseStatus).build();
     }

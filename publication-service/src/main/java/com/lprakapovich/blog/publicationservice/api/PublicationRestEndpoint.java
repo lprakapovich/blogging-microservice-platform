@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 import static com.lprakapovich.blog.publicationservice.api.paging.PageableDefaultValues.DEFAULT_PAGE_NUMBER;
 import static com.lprakapovich.blog.publicationservice.api.paging.PageableDefaultValues.DEFAULT_PAGE_SIZE;
+import static com.lprakapovich.blog.publicationservice.util.AuthenticatedUserResolver.resolveUsernameFromPrincipal;
 
 @RestController
 @RequestMapping("/publication-service/{blogId},{username}/publications")
@@ -141,6 +142,14 @@ class PublicationRestEndpoint {
 ////        return ResponseEntity.ok(map(publication));
 ////    }
 //
+
+    @GetMapping("/search")
+    public ResponseEntity<List<PublicationDto>> getPublicationsBySearchCriteria(@RequestParam(required = false) String criteria) {
+        String authenticatedUser = resolveUsernameFromPrincipal();
+        List<Publication> publications = publicationService.getPublicationsBySearchCriteria(criteria, authenticatedUser);
+        return ResponseEntity.ok(map(publications));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePublication(@PathVariable String blogId,
                                                   @PathVariable String username,
