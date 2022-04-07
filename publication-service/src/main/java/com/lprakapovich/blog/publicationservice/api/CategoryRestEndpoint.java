@@ -28,13 +28,13 @@ class CategoryRestEndpoint {
     private final ObjectMapper mapper;
 
     @PostMapping
-    public ResponseEntity<URI> createCategory(@PathVariable String blogId,
+    public ResponseEntity<Long> createCategory(@PathVariable String blogId,
                                               @PathVariable String username,
                                               @Valid @RequestBody CreateCategoryDto categoryDto) {
         BlogId id = new BlogId(blogId, username);
         blogOwnershipValidator.validate(id);
         long createdCategoryId = categoryService.createCategory(id, categoryDto.getName());
-        return ResponseEntity.created(URI.create(String.valueOf(createdCategoryId))).build();
+        return ResponseEntity.ok().body(createdCategoryId);
     }
 
     @PutMapping("/{id}")

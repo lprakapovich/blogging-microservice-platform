@@ -8,6 +8,7 @@ import com.lprakapovich.blog.publicationservice.api.dto.UpdateBlogDto;
 import com.lprakapovich.blog.publicationservice.model.Blog;
 import com.lprakapovich.blog.publicationservice.model.Blog.BlogId;
 import com.lprakapovich.blog.publicationservice.model.Category;
+import com.lprakapovich.blog.publicationservice.model.Subscription;
 import com.lprakapovich.blog.publicationservice.service.BlogService;
 import com.lprakapovich.blog.publicationservice.service.CategoryService;
 import com.lprakapovich.blog.publicationservice.service.SubscriptionService;
@@ -77,28 +78,19 @@ class BlogRestEndpoint {
     }
 
     @GetMapping("/owned")
-    public ResponseEntity<List<BlogId>> getUserBlogsIds() {
-        return ResponseEntity.ok(blogService.getAllIdsByUsername());
+    public ResponseEntity<List<BlogViewDto>> getUserBlogViews() {
+        List<BlogViewDto> blogViews = blogService.getAllByUsername()
+                .stream()
+                .map(this::buildBlogView)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(blogViews);
     }
 
     @GetMapping("/{id},{username}")
     public ResponseEntity<BlogViewDto> getBlogView(@PathVariable String id,
                                                    @PathVariable String username) {
         BlogId blogId = new BlogId(id, username);
-        Blog blog = blogService.getById(blogId);
-        List<Category> categories = categoryService.getByBlogId(blogId);
-        int subscribersNumber = subscriptionService.getNumberOfSubscribers(blogId);
-        int subscriptionsNumber = subscriptionService.getNumberOfSubscriptions(blogId);
-
-        BlogViewDto blogViewDto = new BlogViewDto(
-                blog.getId(),
-                blog.getDisplayName(),
-                blog.getDescription(),
-                categories,
-                subscriptionsNumber,
-                subscribersNumber
-        );
-        return ResponseEntity.ok(blogViewDto);
+        return ResponseEntity.ok(buildBlogView(blogService.getById(blogId)));
     }
 
     @PostMapping("/check")
@@ -115,5 +107,20 @@ class BlogRestEndpoint {
         return blogs.stream()
                 .map(b -> mapper.convertValue(b, BlogDto.class))
                 .collect(Collectors.toList());
+    }
+
+    private BlogViewDto buildBlogView(Blog blog) {
+        BlogId blogId = blog.getId();
+        List<Category> categories = categoryService.getByBlogId(blogId);
+        List<Subscription> subscribers = subscriptionService.getAllBlogSubscribers(blogId);
+        List<Subscription> subscriptions = subscriptionService.getAllBlogSubscriptions(blogId);
+        return new BlogViewDto(
+                blog.getId(),
+                blog.getDisplayName(),
+                blog.getDescription(),
+                categories,
+                subscriptions,
+                subscribers
+        );
     }
 }

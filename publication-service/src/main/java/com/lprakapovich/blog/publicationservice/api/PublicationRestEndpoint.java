@@ -12,6 +12,7 @@ import com.lprakapovich.blog.publicationservice.service.PublicationService;
 import com.lprakapovich.blog.publicationservice.util.BlogOwnershipValidator;
 import com.lprakapovich.blog.publicationservice.util.UriBuilder;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
@@ -74,7 +75,7 @@ class PublicationRestEndpoint {
         PageRequest pageable = PageRequest.of(page, size, Sort.by(CREATED_DATETIME_FIELD).descending());
         List<Publication> publications;
 
-        boolean isCategoryPresent = Objects.nonNull(categoryId);
+        boolean isCategoryPresent = Objects.nonNull(categoryId) ;
         boolean isStatusSpecified = Objects.nonNull(status);
         boolean isOwner = blogService.isOwner(blogId);
         BlogId id = new BlogId(blogId, username);
@@ -82,6 +83,7 @@ class PublicationRestEndpoint {
         if (isCategoryPresent) {
             publications = publicationService.getAllByBlogIdAndCategory(id, categoryId, pageable);
         } else if (isStatusSpecified) {
+            // no category
             Status resolvedStatus = isOwner ? status : Status.PUBLISHED;
             publications = publicationService.getAllByBlogIdAndStatus(id, resolvedStatus, pageable);
         } else {

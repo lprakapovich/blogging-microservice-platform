@@ -26,8 +26,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final AuthorizationClient authorizationClient;
 
-    private final String AUTH_HEADER = "Authorization";
-    private final String BEARER_PREFIX = "Bearer ";
+    private static final String AUTH_HEADER = "Authorization";
+    private static final String BEARER_PREFIX = "Bearer ";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {

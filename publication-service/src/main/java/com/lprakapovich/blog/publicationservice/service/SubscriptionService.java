@@ -37,14 +37,6 @@ public class SubscriptionService {
         return subscriptionRepository.getAllById_Subscription(blogId);
     }
 
-    public int getNumberOfSubscriptions(BlogId blogId) {
-        return getAllBlogSubscriptions(blogId).size();
-    }
-
-    public int getNumberOfSubscribers(BlogId blogId) {
-        return getAllBlogSubscribers(blogId).size();
-    }
-
     public void checkExistence(Subscription.SubscriptionId id) {
         if (!subscriptionRepository.existsById(id)) {
             throw new SubscriptionNotFoundException();

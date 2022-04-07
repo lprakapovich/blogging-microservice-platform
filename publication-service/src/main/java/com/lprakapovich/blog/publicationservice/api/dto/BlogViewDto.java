@@ -3,6 +3,7 @@ package com.lprakapovich.blog.publicationservice.api.dto;
 import com.lprakapovich.blog.publicationservice.model.Blog;
 import com.lprakapovich.blog.publicationservice.model.Blog.BlogId;
 import com.lprakapovich.blog.publicationservice.model.Category;
+import com.lprakapovich.blog.publicationservice.model.Subscription;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,6 +19,8 @@ public class BlogViewDto {
     private String displayName;
     private String description;
     private List<Category> categories;
-    private int numberOfSubscriptions;
-    private int numberOfSubscribers;
+    private List<Subscription> subscriptions;
+    private List<Subscription> subscribers;
+//    private int numberOfSubscriptions;
+//    private int numberOfSubscribers;
 }

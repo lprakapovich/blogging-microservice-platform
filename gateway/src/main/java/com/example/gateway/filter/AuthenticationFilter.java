@@ -18,7 +18,7 @@ import java.util.Objects;
 
 @RefreshScope
 @Component
-@Order(1)
+@Order(2)
 public class AuthenticationFilter implements GlobalFilter {
 
     @Autowired
