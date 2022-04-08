@@ -26,11 +26,7 @@ public class PublicationRepositoryTest {
 
         Publication publication = new Publication();
         publication.setStatus(Status.PUBLISHED);
-        publication.setHeader("Publication header");
-
-        Content content = new Content(Arrays.asList(
-                new ContentElement(ContentType.PLAIN_TEXT, "Plain Text 1"),
-                new ContentElement(ContentType.PLAIN_TEXT, "Plain text 2")));
+        String content = "<h1> Hi </h1>";
         publication.setContent(content);
 
         Publication persistedPublication = publicationRepository.save(publication);

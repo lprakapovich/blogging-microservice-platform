@@ -23,26 +23,25 @@ public class PublicationService {
     private final CategoryService categoryService;
     private final SubscriptionService subscriptionService;
 
-    public long createPublication(Publication publication, BlogId blogId) {
+    public Publication createPublication(Publication publication, BlogId blogId) {
         checkNullableCategoryExistence(blogId, publication);
         Blog blog = blogService.getById(blogId);
         publication.setBlog(blog);
-        Publication createdPublication = publicationRepository.save(publication);
-        return createdPublication.getId();
+        return publicationRepository.save(publication);
     }
 
-    public void updatePublication(BlogId blogId, long publicationId, Publication publication) {
+    public Publication updatePublication(BlogId blogId, long publicationId, Publication publication) {
         checkExistence(blogId, publicationId);
         checkNullableCategoryExistence(blogId, publication);
         publicationRepository.findByIdAndBlog_Id(publicationId, blogId)
                 .ifPresent(p -> {
-                    p.setHeader(publication.getHeader());
-                    p.setSubHeader(publication.getSubHeader());
+                    p.setTitle(publication.getTitle());
                     p.setCategory(publication.getCategory());
                     p.setStatus(publication.getStatus());
                     p.setContent(publication.getContent());
                     publicationRepository.save(p);
                 });
+        return getById(publicationId, blogId);
     }
 
 
@@ -115,7 +114,7 @@ public class PublicationService {
 //    }
 
     public List<Publication> getPublicationsBySearchCriteria(String search, String authenticatedUser) {
-        return publicationRepository.findByStatusAndHeaderContainsAndBlog_Id_UsernameNot(Status.PUBLISHED, search, authenticatedUser);
+        return publicationRepository.findByStatusAndTitleContainsAndBlog_Id_UsernameNot(Status.PUBLISHED, search, authenticatedUser);
     }
 
     public Publication assignCategoryToPublication(BlogId blogId, long publicationId, long categoryId) {

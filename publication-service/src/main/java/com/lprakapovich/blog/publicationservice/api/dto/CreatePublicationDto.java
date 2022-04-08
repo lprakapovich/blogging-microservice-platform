@@ -1,26 +1,24 @@
 package com.lprakapovich.blog.publicationservice.api.dto;
 
-import com.lprakapovich.blog.publicationservice.model.Category;
-import com.lprakapovich.blog.publicationservice.model.Content;
 import com.lprakapovich.blog.publicationservice.model.Status;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
+@NoArgsConstructor
 public class CreatePublicationDto {
 
-    @NotBlank(message = "Publication header cannot be blank")
-    private String header;
-
-    private String subHeader;
+    @NotBlank(message = "Publication title cannot be blank")
+    private String title;
 
     private CategoryDto category;
 
     @NotNull(message = "Publication must have an assigned status - Published, Draft or Hidden")
     private Status status;
 
-    @NotNull(message = "Publication content cannot me blank")
-    private Content content;
+    @NotBlank(message = "Publication content cannot me blank")
+    private String content;
 }

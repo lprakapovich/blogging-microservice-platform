@@ -19,8 +19,7 @@ public class Publication extends AuditableEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private String header;
-    private String subHeader;
+    private String title;
     private Status status;
 
     @ManyToOne(cascade = CascadeType.ALL)
@@ -32,6 +31,6 @@ public class Publication extends AuditableEntity {
     @JoinColumn
     private Category category;
 
-    @Type(type = "com.lprakapovich.blog.publicationservice.postgres.ContentJsonbType")
-    private Content content;
+    @Column(columnDefinition = "text")
+    private String content;
 }

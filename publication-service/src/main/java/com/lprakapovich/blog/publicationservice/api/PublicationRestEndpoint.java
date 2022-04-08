@@ -10,16 +10,13 @@ import com.lprakapovich.blog.publicationservice.model.Status;
 import com.lprakapovich.blog.publicationservice.service.BlogService;
 import com.lprakapovich.blog.publicationservice.service.PublicationService;
 import com.lprakapovich.blog.publicationservice.util.BlogOwnershipValidator;
-import com.lprakapovich.blog.publicationservice.util.UriBuilder;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -41,27 +38,26 @@ class PublicationRestEndpoint {
     private static final String CREATED_DATETIME_FIELD = "createdDateTime";
 
     @PostMapping
-    public ResponseEntity<URI> createPublication(@PathVariable String blogId,
+    public ResponseEntity<PublicationDto> createPublication(@PathVariable String blogId,
                                                  @PathVariable String username,
                                                  @RequestBody CreatePublicationDto publicationDto) {
         BlogId id = new BlogId(blogId, username);
         blogOwnershipValidator.validate(id);
         Publication publication = objectMapper.convertValue(publicationDto, Publication.class);
-        long publicationId = publicationService.createPublication(publication, id);
-        URI uri = UriBuilder.build(String.valueOf(publicationId));
-        return ResponseEntity.created(uri).build();
+        Publication created = publicationService.createPublication(publication, id);
+        return ResponseEntity.ok(map(created));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updatePublication(@PathVariable String blogId,
+    public ResponseEntity<PublicationDto> updatePublication(@PathVariable String blogId,
                                                   @PathVariable String username,
                                                   @PathVariable(value = "id") long publicationId,
                                                   @RequestBody @Valid UpdatePublicationDto publicationDto) {
         BlogId id = new BlogId(blogId, username);
         blogOwnershipValidator.validate(id);
         Publication updatedPublication = objectMapper.convertValue(publicationDto, Publication.class);
-        publicationService.updatePublication(id, publicationId, updatedPublication);
-        return ResponseEntity.ok().build();
+        Publication updated = publicationService.updatePublication(id, publicationId, updatedPublication);
+        return ResponseEntity.ok(map(updated));
     }
 
     @GetMapping

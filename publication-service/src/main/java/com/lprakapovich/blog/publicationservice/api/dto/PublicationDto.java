@@ -1,7 +1,6 @@
 package com.lprakapovich.blog.publicationservice.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lprakapovich.blog.publicationservice.model.Content;
 import com.lprakapovich.blog.publicationservice.model.Status;
 import lombok.Data;
 
@@ -14,10 +13,11 @@ public class PublicationDto {
 
     private long id;
 
-    @NotBlank(message = "Publication header cannot be blank")
-    private String header;
+    @NotBlank(message = "Publication title cannot be blank")
+    private String title;
 
-    private String subHeader;
+    @NotBlank(message = "Publication content cannot be blank")
+    private String content;
 
     private CategoryDto category;
 
@@ -29,8 +29,6 @@ public class PublicationDto {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime lastUpdatedDateTime;
-
-    private Content content;
 
     private BlogDto blog;
 }
