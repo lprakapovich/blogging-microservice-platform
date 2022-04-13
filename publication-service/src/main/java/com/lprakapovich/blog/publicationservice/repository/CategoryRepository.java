@@ -16,6 +16,11 @@ public interface CategoryRepository extends PagingAndSortingRepository<Category,
     void updateCategoryName(@Param(value = "id") long id,
                             @Param(value = "name") String name);
 
+    @Modifying
+    @Query(value = "delete from categories c where c.blog_id = :blogId and c.username = :username", nativeQuery = true)
+    void deleteAllByBlogIdAndUsername(@Param(value = "blogId") String blogId, @Param(value = "username") String username);
+
+
     @Query(value = "select * from categories c where c.blog_id = :blogId and c.username = :username", nativeQuery = true)
     List<Category> findByBlogId(@Param(value = "blogId") String blogId,
                                 @Param(value = "username") String username);

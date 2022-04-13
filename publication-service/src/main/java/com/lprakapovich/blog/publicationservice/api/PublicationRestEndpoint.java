@@ -71,22 +71,26 @@ class PublicationRestEndpoint {
         PageRequest pageable = PageRequest.of(page, size, Sort.by(CREATED_DATETIME_FIELD).descending());
         List<Publication> publications;
 
-        boolean isCategoryPresent = Objects.nonNull(categoryId) ;
+        boolean isCategorySpecified = Objects.nonNull(categoryId) ;
         boolean isStatusSpecified = Objects.nonNull(status);
         boolean isOwner = blogService.isOwner(blogId);
+        Status resolvedStatus = isOwner ? status : Status.PUBLISHED;
         BlogId id = new BlogId(blogId, username);
 
-        if (isCategoryPresent) {
-            publications = publicationService.getAllByBlogIdAndCategory(id, categoryId, pageable);
-        } else if (isStatusSpecified) {
-            // no category
-            Status resolvedStatus = isOwner ? status : Status.PUBLISHED;
-            publications = publicationService.getAllByBlogIdAndStatus(id, resolvedStatus, pageable);
+        if (isCategorySpecified && isStatusSpecified) {
+            publications = publicationService.getAllByBLogIdAndCategoryAndStatus(id, categoryId, resolvedStatus, pageable);
         } else {
-            publications = blogService.isOwner(blogId) ?
-                    publicationService.getAllByBlogId(id, pageable) :
-                    publicationService.getAllByBlogIdAndStatus(id, Status.PUBLISHED, pageable);
+            if (isCategorySpecified) {
+                publications = publicationService.getAllByBlogIdAndCategory(id, categoryId, pageable);
+            } else if (isStatusSpecified) {
+                publications = publicationService.getAllByBlogIdAndStatus(id, resolvedStatus, pageable);
+            } else {
+                publications = blogService.isOwner(blogId) ?
+                        publicationService.getAllByBlogId(id, pageable) :
+                        publicationService.getAllByBlogIdAndStatus(id, Status.PUBLISHED, pageable);
+            }
         }
+
         return ResponseEntity.ok(map(publications));
     }
 

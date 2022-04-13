@@ -1,8 +1,11 @@
 package com.lprakapovich.blog.publicationservice.service;
 
 import com.lprakapovich.blog.publicationservice.exception.PublicationNotFoundException;
-import com.lprakapovich.blog.publicationservice.model.*;
+import com.lprakapovich.blog.publicationservice.model.Blog;
 import com.lprakapovich.blog.publicationservice.model.Blog.BlogId;
+import com.lprakapovich.blog.publicationservice.model.Category;
+import com.lprakapovich.blog.publicationservice.model.Publication;
+import com.lprakapovich.blog.publicationservice.model.Status;
 import com.lprakapovich.blog.publicationservice.model.Subscription.SubscriptionId;
 import com.lprakapovich.blog.publicationservice.repository.PublicationRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +27,7 @@ public class PublicationService {
     private final SubscriptionService subscriptionService;
 
     public Publication createPublication(Publication publication, BlogId blogId) {
+        checkBlogExistence(blogId);
         checkNullableCategoryExistence(blogId, publication);
         Blog blog = blogService.getById(blogId);
         publication.setBlog(blog);
@@ -31,7 +35,8 @@ public class PublicationService {
     }
 
     public Publication updatePublication(BlogId blogId, long publicationId, Publication publication) {
-        checkExistence(blogId, publicationId);
+        checkBlogExistence(blogId);
+        checkPublicationExistence(blogId, publicationId);
         checkNullableCategoryExistence(blogId, publication);
         publicationRepository.findByIdAndBlog_Id(publicationId, blogId)
                 .ifPresent(p -> {
@@ -46,34 +51,50 @@ public class PublicationService {
 
 
     public void deletePublication(long id, BlogId blogId) {
-        checkExistence(blogId, id);
+        checkBlogExistence(blogId);
+        checkPublicationExistence(blogId, id);
+        Publication publication = getById(id, blogId);
+        publication.setCategory(null);
+        publicationRepository.save(publication);
         publicationRepository.deleteById(id);
     }
 
     public Publication getById(long id, BlogId blogId) {
+        checkBlogExistence(blogId);
         return publicationRepository.findByIdAndBlog_Id(id, blogId)
                 .orElseThrow(PublicationNotFoundException::new);
     }
 
     public Publication getByIdAndStatus(long id, BlogId blogId, Status status) {
+        checkBlogExistence(blogId);
         return publicationRepository.findByIdAndBlog_IdAndStatus(id, blogId, status)
                 .orElseThrow(PublicationNotFoundException::new);
     }
 
     public List<Publication> getAllByBlogId(BlogId blogId, Pageable pageable) {
+        checkBlogExistence(blogId);
         return publicationRepository.findAllByBlog_Id(blogId, pageable);
     }
 
     public List<Publication> getAllByBlogIdAndStatus(BlogId blogId, Status status, PageRequest pageable) {
+        checkBlogExistence(blogId);
         return publicationRepository.findAllByBlog_IdAndStatus(blogId, status, pageable);
     }
 
     public List<Publication> getAllByBlogIdAndCategory(BlogId blogId, long categoryId, PageRequest pageable) {
+        checkBlogExistence(blogId);
         checkCategoryExistence(blogId, categoryId);
         return publicationRepository.findAllByBlog_IdAndCategoryId(blogId, categoryId, pageable);
     }
 
+    public List<Publication> getAllByBLogIdAndCategoryAndStatus(BlogId blogId, long categoryId, Status status, Pageable pageable) {
+        checkBlogExistence(blogId);
+        checkCategoryExistence(blogId, categoryId);
+        return publicationRepository.findAllByBlog_IdAndCategory_IdAndStatus(blogId, categoryId, status, pageable);
+    }
+
     public List<Publication> getPublicationsFromSubscriptions(BlogId blogId, Pageable pageable) {
+        checkBlogExistence(blogId);
         List<BlogId> subscriptionsIds = subscriptionService.getAllBlogSubscriptions(blogId)
                 .stream()
                 .map(subscription -> subscription.getId().getSubscription())
@@ -81,11 +102,11 @@ public class PublicationService {
         return publicationRepository.findAllByBlog_IdInAndStatus(subscriptionsIds, Status.PUBLISHED, pageable);
     }
 
-    public List<Publication> getPublicationsFromSubscription(BlogId subscriber, BlogId subscription, PageRequest pageable) {
-        checkSubscriptionExistence(subscriber, subscription);
-        return publicationRepository.findAllByBlog_IdAndStatus(subscription, Status.PUBLISHED, pageable);
-    }
-
+//    public List<Publication> getPublicationsFromSubscription(BlogId subscriber, BlogId subscription, PageRequest pageable) {
+//        checkSubscriptionExistence(subscriber, subscription);
+//        return publicationRepository.findAllByBlog_IdAndStatus(subscription, Status.PUBLISHED, pageable);
+//    }
+//
 //    /**
 //     *
 //     * @param subscriber blogId
@@ -118,6 +139,7 @@ public class PublicationService {
     }
 
     public Publication assignCategoryToPublication(BlogId blogId, long publicationId, long categoryId) {
+        checkBlogExistence(blogId);
         checkCategoryExistence(blogId, categoryId);
         Publication publication = getById(publicationId, blogId);
         Category category = categoryService.getById(categoryId);
@@ -126,6 +148,7 @@ public class PublicationService {
     }
 
     public Publication unassignCategoryFromPublication(BlogId blogId, long publicationId, long categoryId) {
+        checkBlogExistence(blogId);
         checkCategoryExistence(blogId, categoryId);
         Publication publication = getById(publicationId, blogId);
         Category category = categoryService.getById(categoryId);
@@ -135,14 +158,14 @@ public class PublicationService {
         return publication;
     }
 
-    private void checkExistence(BlogId blogId, long id) {
+    private void checkPublicationExistence(BlogId blogId, long id) {
         if (!publicationRepository.existsByIdAndBlog_Id(id, blogId)) {
             throw new PublicationNotFoundException();
         }
     }
 
-    private void checkSubscriptionExistence(BlogId subscriber, BlogId subscription) {
-        subscriptionService.checkExistence(new SubscriptionId(subscriber, subscription));
+    private void checkBlogExistence(BlogId blogId) {
+        blogService.checkExistence(blogId);
     }
 
     private void checkCategoryExistence(BlogId blogId, long categoryId) {

@@ -30,4 +30,6 @@ public interface PublicationRepository extends PagingAndSortingRepository<Public
     List<Publication> findByStatusAndTitleContainsAndBlog_Id_UsernameNot(Status status, String search, String username);
 
     boolean existsByIdAndBlog_Id(long publicationId, BlogId blogId);
+
+    void deleteAllByBlog_Id(BlogId blogId);
 }

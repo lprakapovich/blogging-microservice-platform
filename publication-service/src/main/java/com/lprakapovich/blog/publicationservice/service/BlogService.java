@@ -5,9 +5,12 @@ import com.lprakapovich.blog.publicationservice.exception.DuplicatedBlogIdExcept
 import com.lprakapovich.blog.publicationservice.model.Blog;
 import com.lprakapovich.blog.publicationservice.model.Blog.BlogId;
 import com.lprakapovich.blog.publicationservice.repository.BlogRepository;
+import com.lprakapovich.blog.publicationservice.repository.CategoryRepository;
+import com.lprakapovich.blog.publicationservice.repository.PublicationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,6 +22,8 @@ import static com.lprakapovich.blog.publicationservice.util.AuthenticatedUserRes
 public class BlogService {
 
     private final BlogRepository blogRepository;
+    private final CategoryRepository categoryRepository;
+    private final PublicationRepository publicationRepository;
 
     public BlogId createBlog(Blog blog) {
         if (blogRepository.existsById(blog.getId())) {
@@ -34,8 +39,11 @@ public class BlogService {
         return blogRepository.save(blog);
     }
 
+    @Transactional
     public void deleteBlog(BlogId blogId) {
         checkExistence(blogId);
+        publicationRepository.deleteAllByBlog_Id(blogId);
+        categoryRepository.deleteAllByBlogIdAndUsername(blogId.getId(), blogId.getUsername());
         blogRepository.deleteById(blogId);
     }
 

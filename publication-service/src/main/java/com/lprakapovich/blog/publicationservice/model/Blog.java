@@ -23,7 +23,7 @@ public class Blog extends AuditableEntity {
     private String displayName;
     private String description;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "blog")
+    @OneToMany(mappedBy = "blog")
     private List<Category> categories = new ArrayList<>();
 
     @Getter

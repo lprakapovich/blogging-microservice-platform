@@ -47,6 +47,10 @@ public class CategoryService {
         categoryRepository.deleteById(categoryId);
     }
 
+    public void deleteCategoriesByBlogId(BlogId blogId) {
+        categoryRepository.deleteAllByBlogIdAndUsername(blogId.getId(), blogId.getUsername());
+    }
+
     public Category getById(long id) {
         return categoryRepository.findById(id)
                 .orElseThrow(CategoryNotFoundException::new);

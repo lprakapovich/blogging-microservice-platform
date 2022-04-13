@@ -1,14 +1,15 @@
 package com.lprakapovich.blog.publicationservice.model;
 
 import com.lprakapovich.blog.publicationservice.model.auditable.AuditableEntity;
+import com.lprakapovich.blog.publicationservice.model.auditable.PublicationEntityListener;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 
 @Entity
+@EntityListeners(PublicationEntityListener.class)
 @Table(name = "publications")
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -22,7 +23,7 @@ public class Publication extends AuditableEntity {
     private String title;
     private Status status;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name="blog_id", referencedColumnName = "blog_id")
     @JoinColumn(name="blog_username", referencedColumnName = "username")
     private Blog blog;
