@@ -1,6 +1,6 @@
 package com.lprakapovich.userservice.repository;
 
-import com.lprakapovich.userservice.doman.User;
+import com.lprakapovich.userservice.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

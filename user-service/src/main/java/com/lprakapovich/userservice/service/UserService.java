@@ -1,6 +1,6 @@
 package com.lprakapovich.userservice.service;
 
-import com.lprakapovich.userservice.doman.User;
+import com.lprakapovich.userservice.domain.User;
 import com.lprakapovich.userservice.exception.DuplicatedUsernameException;
 import com.lprakapovich.userservice.exception.UserNotFoundException;
 import com.lprakapovich.userservice.repository.UserRepository;

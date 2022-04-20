@@ -29,6 +29,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private static final String AUTH_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
 
+    private static final String MISSING_AUTH_HEADER = "Error:: Missing auth header";
+    private static final String JWT_VALIDATION_FAILED = "Error:: Token validation failed";
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
@@ -39,20 +42,19 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
                     setAuthentication(responseEntity.getBody());
                 } else {
-                    log.error("TOKEN DID NOT PASS VALIDATION");
+                    log.error(JWT_VALIDATION_FAILED);
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     SecurityContextHolder.clearContext();
                 }
             } else {
-                log.error("TOKEN IS NOT INCLUDED INTO RESPONSE");
+                log.error(MISSING_AUTH_HEADER);
                 SecurityContextHolder.clearContext();
             }
             filterChain.doFilter(request, response);
         } catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException e) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.sendError(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
-            return;
         }
     }
 

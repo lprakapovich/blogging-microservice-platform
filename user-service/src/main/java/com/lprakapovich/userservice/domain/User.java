@@ -1,4 +1,4 @@
-package com.lprakapovich.userservice.doman;
+package com.lprakapovich.userservice.domain;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
