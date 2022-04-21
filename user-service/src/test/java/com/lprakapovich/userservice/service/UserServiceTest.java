@@ -28,8 +28,6 @@ class UserServiceTest {
 
     private UserService userService;
 
-    private
-
     @BeforeEach
     void setUp() {
         userService = new UserService(userRepository);
