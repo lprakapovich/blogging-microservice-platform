@@ -2,14 +2,14 @@ package com.lprakapovich.blog.publicationservice.util;
 
 import com.lprakapovich.blog.publicationservice.model.Blog;
 import com.lprakapovich.blog.publicationservice.service.BlogService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class BlogOwnershipValidator {
 
-    @Autowired
-    private BlogService blogService;
+    private final BlogService blogService;
 
     public void validate(Blog.BlogId id) {
         PrincipalValidator.validate(id.getUsername());

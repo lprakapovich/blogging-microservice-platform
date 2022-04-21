@@ -33,22 +33,13 @@ public class CategoryService {
     }
 
     @Transactional
-    public void updateCategory(BlogId blogId, long categoryId, String categoryName) {
-        checkExistence(categoryId, blogId);
-        categoryRepository.updateCategoryName(categoryId, categoryName);
-    }
-
-    @Transactional
     public void deleteCategory(BlogId blogId, long categoryId) {
+        blogService.checkExistence(blogId);
         checkExistence(categoryId, blogId);
         publicationRepository
                 .findByCategory_IdAndBlog_Id(categoryId, blogId)
                 .forEach(publication -> publication.setCategory(null));
         categoryRepository.deleteById(categoryId);
-    }
-
-    public void deleteCategoriesByBlogId(BlogId blogId) {
-        categoryRepository.deleteAllByBlogIdAndUsername(blogId.getId(), blogId.getUsername());
     }
 
     public Category getById(long id) {

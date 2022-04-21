@@ -11,9 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.lprakapovich.blog.publicationservice.util.AuthenticatedUserResolver.resolveUsernameFromPrincipal;
 
@@ -51,22 +49,9 @@ public class BlogService {
         return blogRepository.findById(id).orElseThrow(BlogNotFoundException::new);
     }
 
-
-
-    public List<Blog> getAll() {
-        ArrayList<Blog> blogs = new ArrayList<>();
-        blogRepository.findAll().forEach(blogs::add);
-        return blogs;
-    }
-
     public List<Blog> getAllByUsername() {
         String authenticatedUser = resolveUsernameFromPrincipal();
         return blogRepository.findById_Username(authenticatedUser);
-    }
-
-    public List<BlogId> getAllIdsByUsername() {
-        List<Blog> userBlogs = getAllByUsername();
-        return userBlogs.stream().map(Blog::getId).collect(Collectors.toList());
     }
 
     public boolean exists(String id) {

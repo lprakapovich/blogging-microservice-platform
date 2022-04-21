@@ -6,7 +6,6 @@ import com.lprakapovich.blog.publicationservice.model.Blog.BlogId;
 import com.lprakapovich.blog.publicationservice.model.Category;
 import com.lprakapovich.blog.publicationservice.model.Publication;
 import com.lprakapovich.blog.publicationservice.model.Status;
-import com.lprakapovich.blog.publicationservice.model.Subscription.SubscriptionId;
 import com.lprakapovich.blog.publicationservice.repository.PublicationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -101,38 +100,6 @@ public class PublicationService {
                 .collect(Collectors.toList());
         return publicationRepository.findAllByBlog_IdInAndStatus(subscriptionsIds, Status.PUBLISHED, pageable);
     }
-
-//    public List<Publication> getPublicationsFromSubscription(BlogId subscriber, BlogId subscription, PageRequest pageable) {
-//        checkSubscriptionExistence(subscriber, subscription);
-//        return publicationRepository.findAllByBlog_IdAndStatus(subscription, Status.PUBLISHED, pageable);
-//    }
-//
-//    /**
-//     *
-//     * @param subscriber blogId
-//     * @param subscription blogId an authenticated user is subscribed to
-//     * @param categoryId id of category of a subscribed blog
-//     * @param pageable pageable request
-//     * @return publications of a subscribed blog filtered by category
-//     */
-//    public List<Publication> getPublicationsFromSubscriptionByCategory(BlogId subscriber, BlogId subscription, long categoryId, PageRequest pageable) {
-//        checkSubscription(subscriber, subscription);
-//        checkCategory(subscription, categoryId);
-//        return publicationRepository.findAllByBlog_IdAndCategory_IdAndStatus(subscription, categoryId, Status.PUBLISHED, pageable);
-//    }
-//
-//    /**
-//     *
-//     * @param blogId blogId
-//     * @param subscribedBlogId blogId an authenticated user is subscribed to
-//     * @param publicationId targeted publication
-//     * @return targeted publication of a subscribed blog
-//     */
-//    public Publication getPublicationFromSubscription(String blogId, String subscribedBlogId, long publicationId) {
-//        checkSubscription(blogId, subscribedBlogId);
-//        return publicationRepository.findByIdAndBlog_IdAndStatus(publicationId, subscribedBlogId, Status.PUBLISHED)
-//                .orElseThrow(PublicationNotFoundException::new);
-//    }
 
     public List<Publication> getPublicationsBySearchCriteria(String search, String authenticatedUser) {
         return publicationRepository.findByStatusAndTitleContainsAndBlog_Id_UsernameNot(Status.PUBLISHED, search, authenticatedUser);

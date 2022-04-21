@@ -3,7 +3,6 @@ package com.lprakapovich.blog.publicationservice.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lprakapovich.blog.publicationservice.api.dto.CategoryDto;
 import com.lprakapovich.blog.publicationservice.api.dto.CreateCategoryDto;
-import com.lprakapovich.blog.publicationservice.api.dto.UpdateCategoryDto;
 import com.lprakapovich.blog.publicationservice.model.Blog.BlogId;
 import com.lprakapovich.blog.publicationservice.model.Category;
 import com.lprakapovich.blog.publicationservice.service.CategoryService;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,18 +33,6 @@ class CategoryRestEndpoint {
         blogOwnershipValidator.validate(id);
         long createdCategoryId = categoryService.createCategory(id, categoryDto.getName());
         return ResponseEntity.ok().body(createdCategoryId);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<CategoryDto> updateCategory(@PathVariable String blogId,
-                                                      @PathVariable String username,
-                                                      @PathVariable(name = "id") long categoryId,
-                                                      @Valid @RequestBody UpdateCategoryDto categoryDto) {
-        BlogId id = new BlogId(blogId, username);
-        blogOwnershipValidator.validate(id);
-        categoryService.updateCategory(id, categoryId, categoryDto.getName());
-        Category updated = categoryService.getById(categoryId);
-        return ResponseEntity.accepted().body(map(updated));
     }
 
     @GetMapping

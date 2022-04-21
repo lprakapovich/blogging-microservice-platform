@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,7 +39,7 @@ class BlogRestEndpoint {
     private final ObjectMapper mapper;
 
     @PostMapping
-    public ResponseEntity<URI> createBlog(@RequestBody CreateBlogDto blogDto) {
+    public ResponseEntity<URI> createBlog(@RequestBody @Valid CreateBlogDto blogDto) {
         BlogId blogId = new BlogId(blogDto.getId(), resolveUsernameFromPrincipal());
         Blog blog = Blog.builder().id(blogId).build();
         BlogId created = blogService.createBlog(blog);
