@@ -54,7 +54,7 @@ public class BlogService {
         return blogRepository.findById_Username(authenticatedUser);
     }
 
-    public boolean exists(String id) {
+    public boolean existsById(String id) {
         String authenticatedUser = resolveUsernameFromPrincipal();
         BlogId blogId = new BlogId(id, authenticatedUser);
         return blogRepository.existsById(blogId);
@@ -71,7 +71,8 @@ public class BlogService {
         }
     }
 
-    public List<Blog> getAllBySearchCriteria(String search, String authenticatedUser) {
+    public List<Blog> getAllBySearchCriteria(String search) {
+        String authenticatedUser = resolveUsernameFromPrincipal();
         return blogRepository.findByDescriptionContainsOrId_IdContainsAndId_UsernameNot(search, search, authenticatedUser);
     }
 }

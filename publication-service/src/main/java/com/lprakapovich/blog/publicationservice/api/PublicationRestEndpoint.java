@@ -19,8 +19,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
+import static com.lprakapovich.blog.publicationservice.api.dto.utils.DtoMappingUtils.map;
+import static com.lprakapovich.blog.publicationservice.api.dto.utils.DtoMappingUtils.mapPublications;
 import static com.lprakapovich.blog.publicationservice.api.paging.PageableDefaultValues.DEFAULT_PAGE_NUMBER;
 import static com.lprakapovich.blog.publicationservice.api.paging.PageableDefaultValues.DEFAULT_PAGE_SIZE;
 import static com.lprakapovich.blog.publicationservice.util.AuthenticatedUserResolver.resolveUsernameFromPrincipal;
@@ -91,7 +92,7 @@ class PublicationRestEndpoint {
             }
         }
 
-        return ResponseEntity.ok(map(publications));
+        return ResponseEntity.ok(mapPublications(publications));
     }
 
     @GetMapping("/{id}")
@@ -117,39 +118,14 @@ class PublicationRestEndpoint {
 
         PageRequest pageable = PageRequest.of(page, size, Sort.by(CREATED_DATETIME_FIELD).descending());
         List<Publication> publications = publicationService.getPublicationsFromSubscriptions(id, pageable);
-        return ResponseEntity.ok(map(publications));
+        return ResponseEntity.ok(mapPublications(publications));
     }
-
-//
-////    @GetMapping("/subscriptions/{subscriptionBlogId}")
-////    public ResponseEntity<List<PublicationDto>> getPublicationsFromParticularSubscription(@PathVariable String blogId,
-////                                                                                          @PathVariable String subscriptionBlogId,
-////                                                                                          @RequestParam(defaultValue = DEFAULT_PAGE_NUMBER) int page,
-////                                                                                          @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int size,
-////                                                                                          @RequestParam(required = false) Long categoryId) {
-////        checkBlog(blogId);
-////        PageRequest p = PageRequest.of(page, size, Sort.by(CREATED_DATETIME_FIELD));
-////        List<Publication> publications = Objects.nonNull(categoryId) ?
-////                publicationService.getPublicationsFromSubscriptionByCategory(blogId, subscriptionBlogId, categoryId, p) :
-////                publicationService.getPublicationsFromSubscription(blogId, subscriptionBlogId, p);
-////        return ResponseEntity.ok(map(publications));
-////    }
-////
-////    @GetMapping("/subscriptions/{subscriptionBlogId}/{publicationId}")
-////    public ResponseEntity<PublicationDto> getPublicationFromSubscription(@PathVariable String blogId,
-////                                                                         @PathVariable String subscriptionBlogId,
-////                                                                         @PathVariable long publicationId) {
-////        checkBlog(blogId);
-////        Publication publication = publicationService.getPublicationFromSubscription(blogId, subscriptionBlogId, publicationId);
-////        return ResponseEntity.ok(map(publication));
-////    }
-//
 
     @GetMapping("/search")
     public ResponseEntity<List<PublicationDto>> getPublicationsBySearchCriteria(@RequestParam(required = false) String criteria) {
         String authenticatedUser = resolveUsernameFromPrincipal();
         List<Publication> publications = publicationService.getPublicationsBySearchCriteria(criteria, authenticatedUser);
-        return ResponseEntity.ok(map(publications));
+        return ResponseEntity.ok(mapPublications(publications));
     }
 
     @DeleteMapping("/{id}")
@@ -185,17 +161,5 @@ class PublicationRestEndpoint {
         Publication updatedPublication = publicationService.unassignCategoryFromPublication(id, publicationId, categoryId);
         PublicationDto updatedPublicationDto = map(updatedPublication);
         return ResponseEntity.ok().body(updatedPublicationDto);
-    }
-
-
-    private List<PublicationDto> map(List<Publication> publications) {
-        return publications
-                .stream()
-                .map(p -> objectMapper.convertValue(p, PublicationDto.class))
-                .collect(Collectors.toList());
-    }
-
-    private PublicationDto map(Publication publication) {
-        return objectMapper.convertValue(publication, PublicationDto.class);
     }
 }

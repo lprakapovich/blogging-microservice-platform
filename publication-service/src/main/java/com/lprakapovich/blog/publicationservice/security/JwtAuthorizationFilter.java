@@ -43,8 +43,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                     setAuthentication(responseEntity.getBody());
                 } else {
                     log.error(JWT_VALIDATION_FAILED);
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    response.sendError(HttpServletResponse.SC_FORBIDDEN);
                     SecurityContextHolder.clearContext();
                 }
             } else {
@@ -53,8 +53,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             }
             filterChain.doFilter(request, response);
         } catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException e) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
         }
     }
 

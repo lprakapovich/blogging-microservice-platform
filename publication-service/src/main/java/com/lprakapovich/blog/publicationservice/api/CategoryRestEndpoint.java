@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static com.lprakapovich.blog.publicationservice.api.dto.utils.DtoMappingUtils.map;
+import static com.lprakapovich.blog.publicationservice.api.dto.utils.DtoMappingUtils.mapCategories;
 
 @Controller
 @RequestMapping("/publication-service/{blogId},{username}/categories")
@@ -23,7 +25,6 @@ class CategoryRestEndpoint {
 
     private final CategoryService categoryService;
     private final BlogOwnershipValidator blogOwnershipValidator;
-    private final ObjectMapper mapper;
 
     @PostMapping
     public ResponseEntity<Long> createCategory(@PathVariable String blogId,
@@ -41,7 +42,7 @@ class CategoryRestEndpoint {
         BlogId id = new BlogId(blogId, username);
         blogOwnershipValidator.validate(id);
         List<Category> categories = categoryService.getByBlogId(id);
-        return ResponseEntity.ok(map(categories));
+        return ResponseEntity.ok(mapCategories(categories));
     }
 
     @GetMapping("/{id}")
@@ -62,16 +63,5 @@ class CategoryRestEndpoint {
         blogOwnershipValidator.validate(id);
         categoryService.deleteCategory(id, categoryId);
         return ResponseEntity.noContent().build();
-    }
-
-    private List<CategoryDto> map(List<Category> categories) {
-        return categories
-                .stream()
-                .map(c -> mapper.convertValue(c, CategoryDto.class))
-                .collect(Collectors.toList());
-    }
-
-    private CategoryDto map(Category category) {
-        return mapper.convertValue(category, CategoryDto.class);
     }
 }

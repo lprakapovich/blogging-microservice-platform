@@ -25,6 +25,8 @@ import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.lprakapovich.blog.publicationservice.api.dto.utils.DtoMappingUtils.map;
+import static com.lprakapovich.blog.publicationservice.api.dto.utils.DtoMappingUtils.mapBlogs;
 import static com.lprakapovich.blog.publicationservice.util.AuthenticatedUserResolver.resolveUsernameFromPrincipal;
 
 @Controller
@@ -36,7 +38,6 @@ class BlogRestEndpoint {
     private final CategoryService categoryService;
     private final SubscriptionService subscriptionService;
     private final BlogOwnershipValidator blogOwnershipValidator;
-    private final ObjectMapper mapper;
 
     @PostMapping
     public ResponseEntity<URI> createBlog(@RequestBody @Valid CreateBlogDto blogDto) {
@@ -73,9 +74,8 @@ class BlogRestEndpoint {
 
     @GetMapping("/search")
     public ResponseEntity<List<BlogDto>> getBlogsBySearchCriteria(@RequestParam(required = false) String criteria) {
-        String authenticatedUser = resolveUsernameFromPrincipal();
-        List<Blog> blogs = blogService.getAllBySearchCriteria(criteria, authenticatedUser);
-        return ResponseEntity.ok(map(blogs));
+        List<Blog> blogs = blogService.getAllBySearchCriteria(criteria);
+        return ResponseEntity.ok(mapBlogs(blogs));
     }
 
     @GetMapping("/owned")
@@ -96,18 +96,8 @@ class BlogRestEndpoint {
 
     @PostMapping("/check")
     public ResponseEntity<Void> checkExistence(@RequestParam String blogId) {
-        HttpStatus responseStatus =  blogService.exists(blogId) ? HttpStatus.CONFLICT : HttpStatus.OK;
+        HttpStatus responseStatus =  blogService.existsById(blogId) ? HttpStatus.CONFLICT : HttpStatus.OK;
         return ResponseEntity.status(responseStatus).build();
-    }
-
-    private BlogDto map(Blog blog) {
-        return mapper.convertValue(blog, BlogDto.class);
-    }
-
-    private List<BlogDto> map(List<Blog> blogs) {
-        return blogs.stream()
-                .map(b -> mapper.convertValue(b, BlogDto.class))
-                .collect(Collectors.toList());
     }
 
     private BlogViewDto buildBlogView(Blog blog) {
