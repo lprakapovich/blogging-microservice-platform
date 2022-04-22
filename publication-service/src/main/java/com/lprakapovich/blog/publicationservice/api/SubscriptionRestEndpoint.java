@@ -34,6 +34,7 @@ class SubscriptionRestEndpoint {
         BlogId subscriberId = new BlogId(blogId, username);
         blogOwnershipValidator.validate(subscriberId);
         BlogId subscribeToId = subscriptionDto.getSubscription();
+        // todo move existence checks to service
         blogService.checkExistence(subscribeToId);
 
         Subscription subscription = new Subscription(subscriberId, subscribeToId);
@@ -45,6 +46,19 @@ class SubscriptionRestEndpoint {
                 subscriptionId.getSubscription().getUsername());
 
         return ResponseEntity.created(uri).build();
+    }
+
+    @DeleteMapping("/{subscriptionBlogId},{subscriptionUsername}")
+    public ResponseEntity<Void> deleteSubscription(@PathVariable String blogId,
+                                                   @PathVariable String username,
+                                                   @PathVariable String subscriptionBlogId,
+                                                   @PathVariable String subscriptionUsername) {
+
+        BlogId id = new BlogId(blogId, username);
+        blogOwnershipValidator.validate(id);
+        BlogId subscriptionId = new BlogId(subscriptionBlogId, subscriptionUsername);
+        subscriptionService.deleteSubscription(new SubscriptionId(id, subscriptionId));
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping
@@ -72,18 +86,5 @@ class SubscriptionRestEndpoint {
                         subscription.getId().getSubscriber()))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(subscriberDtos);
-    }
-
-    @DeleteMapping("/{subscriptionBlogId},{subscriptionUsername}")
-    public ResponseEntity<Void> deleteSubscription(@PathVariable String blogId,
-                                                   @PathVariable String username,
-                                                   @PathVariable String subscriptionBlogId,
-                                                   @PathVariable String subscriptionUsername) {
-
-        BlogId id = new BlogId(blogId, username);
-        blogOwnershipValidator.validate(id);
-        BlogId subscriptionId = new BlogId(subscriptionBlogId, subscriptionUsername);
-        subscriptionService.deleteSubscription(new SubscriptionId(id, subscriptionId));
-        return ResponseEntity.noContent().build();
     }
 }
