@@ -33,10 +33,10 @@ public class Blog extends AuditableEntity {
     @EqualsAndHashCode
     public static class BlogId implements Serializable {
 
-        @Column(name = "blog_id")
+        @Column(name = "blog_id", nullable = false)
         private String id;
 
-        @Column(name = "username")
+        @Column(name = "username", nullable = false)
         private String username;
     }
 }
