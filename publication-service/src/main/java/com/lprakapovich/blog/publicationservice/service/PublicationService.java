@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.lprakapovich.blog.publicationservice.util.AuthenticatedUserResolver.resolveUsernameFromPrincipal;
+
 @Service
 @RequiredArgsConstructor
 public class PublicationService {
@@ -101,7 +103,8 @@ public class PublicationService {
         return publicationRepository.findAllByBlog_IdInAndStatus(subscriptionsIds, Status.PUBLISHED, pageable);
     }
 
-    public List<Publication> getPublicationsBySearchCriteria(String search, String authenticatedUser) {
+    public List<Publication> getPublicationsBySearchCriteria(String search) {
+        String authenticatedUser = resolveUsernameFromPrincipal();
         return publicationRepository.findByStatusAndTitleContainsAndBlog_Id_UsernameNot(Status.PUBLISHED, search, authenticatedUser);
     }
 

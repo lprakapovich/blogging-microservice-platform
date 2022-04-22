@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Objects;
 
@@ -40,8 +41,8 @@ class PublicationRestEndpoint {
 
     @PostMapping
     public ResponseEntity<PublicationDto> createPublication(@PathVariable String blogId,
-                                                 @PathVariable String username,
-                                                 @RequestBody CreatePublicationDto publicationDto) {
+                                                            @PathVariable String username,
+                                                            @RequestBody @Valid CreatePublicationDto publicationDto) {
         BlogId id = new BlogId(blogId, username);
         blogOwnershipValidator.validate(id);
         Publication publication = objectMapper.convertValue(publicationDto, Publication.class);
@@ -59,6 +60,16 @@ class PublicationRestEndpoint {
         Publication updatedPublication = objectMapper.convertValue(publicationDto, Publication.class);
         Publication updated = publicationService.updatePublication(id, publicationId, updatedPublication);
         return ResponseEntity.ok(map(updated));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePublication(@PathVariable String blogId,
+                                                  @PathVariable String username,
+                                                  @PathVariable(name = "id") long publicationId) {
+        BlogId id = new BlogId(blogId, username);
+        blogOwnershipValidator.validate(id);
+        publicationService.deletePublication(publicationId, id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping
@@ -123,23 +134,12 @@ class PublicationRestEndpoint {
 
     @GetMapping("/search")
     public ResponseEntity<List<PublicationDto>> getPublicationsBySearchCriteria(@RequestParam(required = false) String criteria) {
-        String authenticatedUser = resolveUsernameFromPrincipal();
-        List<Publication> publications = publicationService.getPublicationsBySearchCriteria(criteria, authenticatedUser);
+        List<Publication> publications = publicationService.getPublicationsBySearchCriteria(criteria);
         return ResponseEntity.ok(mapPublications(publications));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePublication(@PathVariable String blogId,
-                                                  @PathVariable String username,
-                                                  @PathVariable(name = "id") long publicationId) {
-        BlogId id = new BlogId(blogId, username);
-        blogOwnershipValidator.validate(id);
-        publicationService.deletePublication(publicationId, id);
-        return ResponseEntity.noContent().build();
-    }
-
     @PutMapping("/{id}/{categoryId}")
-    public ResponseEntity<PublicationDto> assignPublicationToCategory(@PathVariable String blogId,
+    public ResponseEntity<PublicationDto> assignCategoryToPublication(@PathVariable String blogId,
                                                                       @PathVariable String username,
                                                                       @PathVariable(value = "id") long publicationId,
                                                                       @PathVariable long categoryId) {
@@ -152,7 +152,7 @@ class PublicationRestEndpoint {
     }
 
     @DeleteMapping("/{id}/{categoryId}")
-    public ResponseEntity<PublicationDto> unassignPublicationFromCategory(@PathVariable String blogId,
+    public ResponseEntity<PublicationDto> unassignCategoryFromPublication(@PathVariable String blogId,
                                                                           @PathVariable String username,
                                                                           @PathVariable(value = "id") long publicationId,
                                                                           @PathVariable long categoryId) {
