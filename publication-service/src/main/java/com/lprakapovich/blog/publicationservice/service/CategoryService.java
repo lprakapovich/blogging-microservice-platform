@@ -24,7 +24,7 @@ public class CategoryService {
     @Transactional
     public long createCategory(BlogId id, String categoryName) {
         Blog blog = blogService.getById(id);
-        checkUniqueness(categoryName, id);
+        checkNameUniquenessPerBlog(categoryName, id);
         Category category = new Category();
         category.setName(categoryName);
         category.setBlog(blog);
@@ -47,12 +47,6 @@ public class CategoryService {
                 .orElseThrow(CategoryNotFoundException::new);
     }
 
-    public Category getByIdAndBlogId(long id, BlogId blogId) {
-        return categoryRepository
-                .findByIdAndBlogId(id, blogId.getId(), blogId.getUsername())
-                .orElseThrow(CategoryNotFoundException::new);
-    }
-
     public List<Category> getByBlogId(BlogId blogId) {
         return categoryRepository.findByBlogId(blogId.getId(), blogId.getUsername());
     }
@@ -63,7 +57,7 @@ public class CategoryService {
         }
     }
 
-    public void checkUniqueness(String name, BlogId blogId) {
+    public void checkNameUniquenessPerBlog(String name, BlogId blogId) {
         if (categoryRepository.existsByNameAndBlogId(name, blogId.getId(), blogId.getUsername())) {
             throw new DuplicatedCategoryNameException();
         }

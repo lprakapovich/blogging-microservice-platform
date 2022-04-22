@@ -1,10 +1,7 @@
 package com.lprakapovich.blog.publicationservice.api;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lprakapovich.blog.publicationservice.api.dto.CategoryDto;
 import com.lprakapovich.blog.publicationservice.api.dto.CreateCategoryDto;
 import com.lprakapovich.blog.publicationservice.model.Blog.BlogId;
-import com.lprakapovich.blog.publicationservice.model.Category;
 import com.lprakapovich.blog.publicationservice.service.CategoryService;
 import com.lprakapovich.blog.publicationservice.util.BlogOwnershipValidator;
 import lombok.RequiredArgsConstructor;
@@ -13,10 +10,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
-
-import static com.lprakapovich.blog.publicationservice.api.dto.utils.DtoMappingUtils.map;
-import static com.lprakapovich.blog.publicationservice.api.dto.utils.DtoMappingUtils.mapCategories;
 
 @Controller
 @RequestMapping("/publication-service/{blogId},{username}/categories")
@@ -34,25 +27,6 @@ class CategoryRestEndpoint {
         blogOwnershipValidator.validate(id);
         long createdCategoryId = categoryService.createCategory(id, categoryDto.getName());
         return ResponseEntity.ok().body(createdCategoryId);
-    }
-
-    @GetMapping
-    public ResponseEntity<List<CategoryDto>> getCategories(@PathVariable String blogId,
-                                                           @PathVariable String username) {
-        BlogId id = new BlogId(blogId, username);
-        blogOwnershipValidator.validate(id);
-        List<Category> categories = categoryService.getByBlogId(id);
-        return ResponseEntity.ok(mapCategories(categories));
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<CategoryDto> getCategory(@PathVariable String blogId,
-                                                   @PathVariable String username,
-                                                   @PathVariable(name = "id") long categoryId) {
-        BlogId id = new BlogId(blogId, username);
-        blogOwnershipValidator.validate(id);
-        Category byId = categoryService.getByIdAndBlogId(categoryId, id);
-        return ResponseEntity.ok(map(byId));
     }
 
     @DeleteMapping("/{id}")
