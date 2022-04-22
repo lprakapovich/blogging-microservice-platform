@@ -30,6 +30,7 @@ public class Blog extends AuditableEntity {
     @NoArgsConstructor
     @AllArgsConstructor
     @Embeddable
+    @EqualsAndHashCode
     public static class BlogId implements Serializable {
 
         @Column(name = "blog_id")
