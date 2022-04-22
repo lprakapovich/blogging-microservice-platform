@@ -13,8 +13,10 @@ import com.lprakapovich.blog.publicationservice.service.CategoryService;
 import com.lprakapovich.blog.publicationservice.service.SubscriptionService;
 import com.lprakapovich.blog.publicationservice.util.BlogOwnershipValidator;
 import com.lprakapovich.blog.publicationservice.util.UriBuilder;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -38,6 +40,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standal
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = BlogRestEndpoint.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 //@ImportAutoConfiguration({FeignAutoConfiguration.class})
 class BlogRestEndpointTest {
 
@@ -67,7 +70,7 @@ class BlogRestEndpointTest {
 
     private BlogRestEndpoint blogRestEndpoint;
 
-    @BeforeEach
+    @BeforeAll
      void init() {
         blogRestEndpoint = new BlogRestEndpoint(
                 blogService,
@@ -75,6 +78,11 @@ class BlogRestEndpointTest {
                 subscriptionService,
                 blogOwnershipValidator
         );
+    }
+
+    @BeforeEach
+    void setUp() {
+        mockSuccessfulTokenValidation(authorizationClient);
     }
 
     @Test
@@ -85,7 +93,6 @@ class BlogRestEndpointTest {
         dto.setId(BLOG_ID);
         String expectedLocationHeader = UriBuilder.build(BLOG_ID, USERNAME).toString();
         given(blogService.createBlog(any())).willReturn(getDefaultBlogId());
-        mockSuccessfulTokenValidation(authorizationClient);
 
         // when
         MvcResult mvcResult = standaloneSetup(blogRestEndpoint)
@@ -109,7 +116,6 @@ class BlogRestEndpointTest {
 
         // given
         CreateBlogDto dto = new CreateBlogDto();
-        mockSuccessfulTokenValidation(authorizationClient);
 
         // when
         // then
@@ -129,7 +135,6 @@ class BlogRestEndpointTest {
 
         // given
         UpdateBlogDto dto = new UpdateBlogDto();
-        mockSuccessfulTokenValidation(authorizationClient);
 
         // when
         MvcResult mvcResult = standaloneSetup(blogRestEndpoint)
@@ -152,7 +157,6 @@ class BlogRestEndpointTest {
 
         // given
         UpdateBlogDto dto = new UpdateBlogDto();
-        mockSuccessfulTokenValidation(authorizationClient);
         doThrow(new PrincipalMismatchException()).when(blogOwnershipValidator).validate(any());
 
         // when
@@ -174,7 +178,6 @@ class BlogRestEndpointTest {
 
         // given
         UpdateBlogDto dto = new UpdateBlogDto();
-        mockSuccessfulTokenValidation(authorizationClient);
         doThrow(new BlogNotFoundException()).when(blogOwnershipValidator).validate(any());
 
         // when
@@ -195,7 +198,6 @@ class BlogRestEndpointTest {
     void whenBlogOwnershipValidationFailsOnDelete_return403() throws Exception {
 
         // given
-        mockSuccessfulTokenValidation(authorizationClient);
         doThrow(new PrincipalMismatchException()).when(blogOwnershipValidator).validate(any());
 
         // when
@@ -214,7 +216,6 @@ class BlogRestEndpointTest {
     void whenBlogExistenceCheckFailsOnDelete_return404() throws Exception {
 
         // given
-        mockSuccessfulTokenValidation(authorizationClient);
         doThrow(new BlogNotFoundException()).when(blogOwnershipValidator).validate(any());
 
         // when
@@ -233,7 +234,6 @@ class BlogRestEndpointTest {
     void whenBlogIdUniquenessPerUserCheckFails_return406() throws Exception {
 
         // given
-        mockSuccessfulTokenValidation(authorizationClient);
         given(blogService.existsById(BLOG_ID)).willReturn(true);
 
         // when
@@ -252,7 +252,6 @@ class BlogRestEndpointTest {
     void whenBlogIdUniquenessPerUserSucceeds_return200() throws Exception {
 
         // given
-        mockSuccessfulTokenValidation(authorizationClient);
         given(blogService.existsById(BLOG_ID)).willReturn(false);
 
         // when

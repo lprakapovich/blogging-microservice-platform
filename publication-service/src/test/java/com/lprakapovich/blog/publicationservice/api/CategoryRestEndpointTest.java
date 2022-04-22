@@ -11,8 +11,10 @@ import com.lprakapovich.blog.publicationservice.model.Blog.BlogId;
 import com.lprakapovich.blog.publicationservice.security.JwtAuthorizationFilter;
 import com.lprakapovich.blog.publicationservice.service.CategoryService;
 import com.lprakapovich.blog.publicationservice.util.BlogOwnershipValidator;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standal
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = CategoryRestEndpoint.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CategoryRestEndpointTest {
 
     @MockBean
@@ -56,12 +59,17 @@ class CategoryRestEndpointTest {
 
     private CategoryRestEndpoint categoryRestEndpoint;
 
-    @BeforeEach
+    @BeforeAll
     void init() {
         categoryRestEndpoint = new CategoryRestEndpoint(
                 categoryService,
                 blogOwnershipValidator
         );
+    }
+
+    @BeforeEach
+    void setUp() {
+        mockSuccessfulTokenValidation(authorizationClient);
     }
 
     @Test
@@ -72,7 +80,6 @@ class CategoryRestEndpointTest {
         String expectedCategoryName = "name";
         CreateCategoryDto dto = new CreateCategoryDto();
         dto.setName(expectedCategoryName);
-        mockSuccessfulTokenValidation(authorizationClient);
 
         // when
         standaloneSetup(categoryRestEndpoint)
@@ -96,7 +103,6 @@ class CategoryRestEndpointTest {
 
         // given
         CreateCategoryDto dto = new CreateCategoryDto();
-        mockSuccessfulTokenValidation(authorizationClient);
 
         // when
         standaloneSetup(categoryRestEndpoint)
@@ -119,7 +125,6 @@ class CategoryRestEndpointTest {
         // given
         CreateCategoryDto dto = new CreateCategoryDto();
         dto.setName("name");
-        mockSuccessfulTokenValidation(authorizationClient);
         doThrow(new PrincipalMismatchException()).when(blogOwnershipValidator).validate(any());
 
         // when
@@ -144,7 +149,6 @@ class CategoryRestEndpointTest {
         // given
         long categoryId = 1L;
         BlogId expectedBlogId = getDefaultBlogId();
-        mockSuccessfulTokenValidation(authorizationClient);
 
         // when
         standaloneSetup(categoryRestEndpoint)
@@ -167,7 +171,6 @@ class CategoryRestEndpointTest {
         // given
         long categoryId = 1L;
         BlogId expectedBlogId = getDefaultBlogId();
-        mockSuccessfulTokenValidation(authorizationClient);
         doThrow(new PrincipalMismatchException()).when(blogOwnershipValidator).validate(any());
 
         // when
@@ -191,7 +194,6 @@ class CategoryRestEndpointTest {
         // given
         long categoryId = 1L;
         BlogId expectedBlogId = getDefaultBlogId();
-        mockSuccessfulTokenValidation(authorizationClient);
         doThrow(new BlogNotFoundException()).when(categoryService).deleteCategory(expectedBlogId, categoryId);
 
         // when
@@ -213,7 +215,6 @@ class CategoryRestEndpointTest {
         // given
         long categoryId = 1L;
         BlogId expectedBlogId = getDefaultBlogId();
-        mockSuccessfulTokenValidation(authorizationClient);
         doThrow(new CategoryNotFoundException()).when(categoryService).deleteCategory(expectedBlogId, categoryId);
 
         // when
