@@ -17,7 +17,7 @@ import static com.lprakapovich.authorizationservice.exception.JwtException.Cause
 
 @Component
 @RequiredArgsConstructor
-public class JwtUtil {
+public class JwtService {
 
     private final JwtProperties properties;
 
@@ -29,30 +29,16 @@ public class JwtUtil {
     }
 
     public String generateToken(String username) {
-        return doGenerateToken(new HashMap<>(), username);
-    }
-
-    private String doGenerateToken(Map<String, Object> claims, String username) {
-        return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(username)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + properties.getExpirationInMillis() * 10000))
-                .signWith(SignatureAlgorithm.HS256, secretKey)
-                .compact();
+        return generateToken(new HashMap<>(), username);
     }
 
     public <T> T getClaims(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = getAllClaimsFromToken(token);
+        final Claims claims = getClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    public String getUsernameFromToken(String token) {
+    public String getSubjectFromToken(String token) {
         return getClaims(token, Claims::getSubject);
-    }
-
-    public Date getExpirationDateFromToken(String token) {
-        return getClaims(token, Claims::getExpiration);
     }
 
     public boolean isTokenValid(String token) {
@@ -69,7 +55,17 @@ public class JwtUtil {
         }
     }
 
-    public Claims getAllClaimsFromToken(String token) {
+    private Claims getClaims(String token) {
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
+    }
+
+    private String generateToken(Map<String, Object> claims, String username) {
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + properties.getExpirationInMillis() * 10000))
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
     }
 }

@@ -5,9 +5,9 @@ import com.lprakapovich.authorizationservice.api.dto.LoginDto;
 import com.lprakapovich.authorizationservice.api.dto.RegisterDto;
 import com.lprakapovich.authorizationservice.exception.JwtException;
 import com.lprakapovich.authorizationservice.feign.UserClient;
-import com.lprakapovich.authorizationservice.jwt.JwtUtil;
+import com.lprakapovich.authorizationservice.jwt.JwtService;
 import com.lprakapovich.authorizationservice.security.ApplicationPasswordEncoder;
-import com.lprakapovich.authorizationservice.service.AuthService;
+import com.lprakapovich.authorizationservice.service.AuthenticationService;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,14 +24,14 @@ import static com.lprakapovich.authorizationservice.exception.JwtException.Cause
 public class AuthRestEndpoint {
 
     private final UserClient userClient;
-    private final AuthService authService;
-    private final JwtUtil jwtUtil;
+    private final AuthenticationService authenticationService;
+    private final JwtService jwtService;
     private final ApplicationPasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
     public ResponseEntity<AuthDto> login(@Valid @RequestBody LoginDto request) {
-        authService.authenticate(request.getUsername(), request.getPassword());
-        String token = jwtUtil.generateToken(request.getUsername());
+        authenticationService.authenticate(request.getUsername(), request.getPassword());
+        String token = jwtService.generateToken(request.getUsername());
         return ResponseEntity.ok(new AuthDto(token));
     }
 
@@ -40,7 +40,7 @@ public class AuthRestEndpoint {
         request.setPassword(encrypt(request.getPassword()));
         ResponseEntity<?> userCreatedResponse = userClient.createUser(request);
         URI createdResourceLocation = userCreatedResponse.getHeaders().getLocation();
-        String token = jwtUtil.generateToken(request.getUsername());
+        String token = jwtService.generateToken(request.getUsername());
         assert createdResourceLocation != null;
         return ResponseEntity.created(createdResourceLocation).body(new AuthDto(token));
     }
@@ -48,11 +48,10 @@ public class AuthRestEndpoint {
     @PostMapping("/validate")
     public ResponseEntity<String> validateToken(@RequestParam String token) {
         // TODO handle builtin exceptions thrown during claims resolution
-        if (!jwtUtil.isTokenValid(token)) {
+        if (!jwtService.isTokenValid(token)) {
             throw new JwtException(INVALID);
         }
-        Claims userClaims = jwtUtil.getAllClaimsFromToken(token);
-        return ResponseEntity.ok(userClaims.getSubject());
+        return ResponseEntity.ok(jwtService.getSubjectFromToken(token));
     }
 
     private String encrypt(String password) {
