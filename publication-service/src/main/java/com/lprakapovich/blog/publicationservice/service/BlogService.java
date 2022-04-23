@@ -71,8 +71,8 @@ public class BlogService {
         }
     }
 
-    public List<Blog> getAllBySearchCriteria(String search) {
+    public List<Blog> getAllBySearchCriteria(String criteria) {
         String authenticatedUser = resolveUsernameFromPrincipal();
-        return blogRepository.findByDescriptionContainsOrId_IdContainsAndId_UsernameNot(search, search, authenticatedUser);
+        return blogRepository.findByCriteriaExcludingUsername(criteria, authenticatedUser);
     }
 }
