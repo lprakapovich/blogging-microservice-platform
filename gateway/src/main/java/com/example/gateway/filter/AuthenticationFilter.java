@@ -24,7 +24,7 @@ public class AuthenticationFilter implements GlobalFilter {
     @Autowired
     private RouteValidator routeValidator;
 
-    private static final String AUTHORIZATION_HEADER = "Authorization";
+    private static final String AUTHORIZATION = "Authorization";
     private static final String BEARER = "Bearer";
 
     @Override
@@ -43,12 +43,12 @@ public class AuthenticationFilter implements GlobalFilter {
     }
 
     private boolean notBearerAuthentication(ServerHttpRequest request) {
-        List<String> authorizationHeaders = request.getHeaders().get(AUTHORIZATION_HEADER);
+        List<String> authorizationHeaders = request.getHeaders().get(AUTHORIZATION);
         return Objects.isNull(authorizationHeaders) || authorizationHeaders.isEmpty() || !authorizationHeaders.get(0).startsWith(BEARER);
     }
 
     private boolean isAuthHeaderMissing(ServerHttpRequest request) {
-        return !request.getHeaders().containsKey(AUTHORIZATION_HEADER);
+        return !request.getHeaders().containsKey(AUTHORIZATION);
     }
 
     private Mono<Void> missingAuthHeader(ServerWebExchange exchange) {
