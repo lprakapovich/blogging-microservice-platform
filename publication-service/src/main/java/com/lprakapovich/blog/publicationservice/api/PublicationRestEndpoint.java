@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lprakapovich.blog.publicationservice.api.dto.CreatePublicationDto;
 import com.lprakapovich.blog.publicationservice.api.dto.PublicationDto;
 import com.lprakapovich.blog.publicationservice.api.dto.UpdatePublicationDto;
+import com.lprakapovich.blog.publicationservice.api.dto.utils.GenericMappingUtils;
 import com.lprakapovich.blog.publicationservice.model.Blog.BlogId;
 import com.lprakapovich.blog.publicationservice.model.Publication;
 import com.lprakapovich.blog.publicationservice.model.Status;
@@ -17,15 +18,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Objects;
 
-import static com.lprakapovich.blog.publicationservice.api.dto.utils.DtoMappingUtils.map;
-import static com.lprakapovich.blog.publicationservice.api.dto.utils.DtoMappingUtils.mapPublications;
 import static com.lprakapovich.blog.publicationservice.api.paging.PageableDefaultValues.DEFAULT_PAGE_NUMBER;
 import static com.lprakapovich.blog.publicationservice.api.paging.PageableDefaultValues.DEFAULT_PAGE_SIZE;
-import static com.lprakapovich.blog.publicationservice.util.AuthenticatedUserResolver.resolveUsernameFromPrincipal;
 
 @RestController
 @RequestMapping("/publication-service/{blogId},{username}/publications")
@@ -36,6 +33,7 @@ class PublicationRestEndpoint {
     private final BlogService blogService;
     private final ObjectMapper objectMapper;
     private final BlogOwnershipValidator blogOwnershipValidator;
+    private final GenericMappingUtils mappingUtils;
 
     private static final String CREATED_DATETIME_FIELD = "createdDateTime";
 
@@ -44,10 +42,10 @@ class PublicationRestEndpoint {
                                                             @PathVariable String username,
                                                             @RequestBody @Valid CreatePublicationDto publicationDto) {
         BlogId id = new BlogId(blogId, username);
-        blogOwnershipValidator.validate(id);
+        blogOwnershipValidator.isPrincipalOwner(id);
         Publication publication = objectMapper.convertValue(publicationDto, Publication.class);
         Publication created = publicationService.createPublication(publication, id);
-        return ResponseEntity.ok(map(created));
+        return ResponseEntity.ok(mappingUtils.map(created, PublicationDto.class));
     }
 
     @PutMapping("/{id}")
@@ -56,10 +54,10 @@ class PublicationRestEndpoint {
                                                   @PathVariable(value = "id") long publicationId,
                                                   @RequestBody @Valid UpdatePublicationDto publicationDto) {
         BlogId id = new BlogId(blogId, username);
-        blogOwnershipValidator.validate(id);
+        blogOwnershipValidator.isPrincipalOwner(id);
         Publication updatedPublication = objectMapper.convertValue(publicationDto, Publication.class);
         Publication updated = publicationService.updatePublication(id, publicationId, updatedPublication);
-        return ResponseEntity.ok(map(updated));
+        return ResponseEntity.ok(mappingUtils.map(updated, PublicationDto.class));
     }
 
     @DeleteMapping("/{id}")
@@ -67,7 +65,7 @@ class PublicationRestEndpoint {
                                                   @PathVariable String username,
                                                   @PathVariable(name = "id") long publicationId) {
         BlogId id = new BlogId(blogId, username);
-        blogOwnershipValidator.validate(id);
+        blogOwnershipValidator.isPrincipalOwner(id);
         publicationService.deletePublication(publicationId, id);
         return ResponseEntity.noContent().build();
     }
@@ -103,7 +101,7 @@ class PublicationRestEndpoint {
             }
         }
 
-        return ResponseEntity.ok(mapPublications(publications));
+        return ResponseEntity.ok(mappingUtils.mapList(publications, PublicationDto.class));
     }
 
     @GetMapping("/{id}")
@@ -115,9 +113,8 @@ class PublicationRestEndpoint {
         Publication publication = blogService.isOwner(blogId) ?
                 publicationService.getById(publicationId, id) :
                 publicationService.getByIdAndStatus(publicationId, id, Status.PUBLISHED);
-        return ResponseEntity.ok(map(publication));
+        return ResponseEntity.ok(mappingUtils.map(publication, PublicationDto.class));
     }
-
 
     @GetMapping("/subscriptions")
     public ResponseEntity<List<PublicationDto>> getPublicationsFromSubscriptions(@PathVariable String blogId,
@@ -125,17 +122,17 @@ class PublicationRestEndpoint {
                                                                                  @RequestParam(defaultValue = DEFAULT_PAGE_NUMBER) int page,
                                                                                  @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int size) {
         BlogId id = new BlogId(blogId, username);
-        blogOwnershipValidator.validate(id);
+        blogOwnershipValidator.isPrincipalOwner(id);
 
         PageRequest pageable = PageRequest.of(page, size, Sort.by(CREATED_DATETIME_FIELD).descending());
         List<Publication> publications = publicationService.getPublicationsFromSubscriptions(id, pageable);
-        return ResponseEntity.ok(mapPublications(publications));
+        return ResponseEntity.ok(mappingUtils.mapList(publications, PublicationDto.class));
     }
 
     @GetMapping("/search")
     public ResponseEntity<List<PublicationDto>> getPublicationsBySearchCriteria(@RequestParam(required = false) String criteria) {
         List<Publication> publications = publicationService.getPublicationsBySearchCriteria(criteria);
-        return ResponseEntity.ok(mapPublications(publications));
+        return ResponseEntity.ok(mappingUtils.mapList(publications, PublicationDto.class));
     }
 
     @PutMapping("/{id}/{categoryId}")
@@ -144,10 +141,10 @@ class PublicationRestEndpoint {
                                                                       @PathVariable(value = "id") long publicationId,
                                                                       @PathVariable long categoryId) {
         BlogId id = new BlogId(blogId, username);
-        blogOwnershipValidator.validate(id);
+        blogOwnershipValidator.isPrincipalOwner(id);
 
         Publication updatedPublication = publicationService.assignCategoryToPublication(id, publicationId, categoryId);
-        PublicationDto updatedPublicationDto = map(updatedPublication);
+        PublicationDto updatedPublicationDto = mappingUtils.map(updatedPublication, PublicationDto.class);
         return ResponseEntity.ok().body(updatedPublicationDto);
     }
 
@@ -157,9 +154,9 @@ class PublicationRestEndpoint {
                                                                           @PathVariable(value = "id") long publicationId,
                                                                           @PathVariable long categoryId) {
         BlogId id = new BlogId(blogId, username);
-        blogOwnershipValidator.validate(id);
+        blogOwnershipValidator.isPrincipalOwner(id);
         Publication updatedPublication = publicationService.unassignCategoryFromPublication(id, publicationId, categoryId);
-        PublicationDto updatedPublicationDto = map(updatedPublication);
+        PublicationDto updatedPublicationDto = mappingUtils.map(updatedPublication, PublicationDto.class);
         return ResponseEntity.ok().body(updatedPublicationDto);
     }
 }

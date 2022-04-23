@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static com.lprakapovich.blog.publicationservice.util.AuthenticationMockUtils.DEFAULT_PRINCIPAL;
 import static com.lprakapovich.blog.publicationservice.util.BlogUtil.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -128,7 +129,7 @@ class BlogServiceTest {
 
         // then
         verify(publicationRepository).deleteAllByBlog_Id(blogId);
-        verify(categoryRepository).deleteAllByBlogIdAndUsername(BLOG_ID, USERNAME);
+        verify(categoryRepository).deleteAllByBlogIdAndUsername(BLOG_ID, DEFAULT_PRINCIPAL);
         verify(blogRepository).deleteById(blogId);
     }
 
@@ -148,10 +149,10 @@ class BlogServiceTest {
     void whenGettingByUsername_returnsProperList() {
         // given
         try (MockedStatic<AuthenticatedUserResolver> resolver = Mockito.mockStatic(AuthenticatedUserResolver.class)) {
-            resolver.when(AuthenticatedUserResolver::resolveUsernameFromPrincipal).thenReturn(USERNAME);
+            resolver.when(AuthenticatedUserResolver::resolveUsernameFromPrincipal).thenReturn(DEFAULT_PRINCIPAL);
 
             Blog defaultBlog = getDefaultBlog();
-            given(blogRepository.findById_Username(USERNAME)).willReturn(List.of(defaultBlog));
+            given(blogRepository.findById_Username(DEFAULT_PRINCIPAL)).willReturn(List.of(defaultBlog));
 
             // when
             List<Blog> blogs = blogService.getAllByUsername();
@@ -164,9 +165,9 @@ class BlogServiceTest {
     @Test
     void whenGettingByUsername_returnsEmptyList() {
         try (MockedStatic<AuthenticatedUserResolver> resolver = Mockito.mockStatic(AuthenticatedUserResolver.class)) {
-            resolver.when(AuthenticatedUserResolver::resolveUsernameFromPrincipal).thenReturn(USERNAME);
+            resolver.when(AuthenticatedUserResolver::resolveUsernameFromPrincipal).thenReturn(DEFAULT_PRINCIPAL);
 
-            given(blogRepository.findById_Username(USERNAME)).willReturn(Collections.emptyList());
+            given(blogRepository.findById_Username(DEFAULT_PRINCIPAL)).willReturn(Collections.emptyList());
 
             // when
             List<Blog> blogs = blogService.getAllByUsername();

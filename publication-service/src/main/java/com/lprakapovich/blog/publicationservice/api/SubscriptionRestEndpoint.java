@@ -32,7 +32,7 @@ class SubscriptionRestEndpoint {
                                                   @RequestBody SubscriptionDto subscriptionDto) {
 
         BlogId subscriberId = new BlogId(blogId, username);
-        blogOwnershipValidator.validate(subscriberId);
+        blogOwnershipValidator.isPrincipalOwner(subscriberId);
         BlogId subscribeToId = subscriptionDto.getSubscription();
         // todo move existence checks to service
         blogService.checkExistence(subscribeToId);
@@ -55,7 +55,7 @@ class SubscriptionRestEndpoint {
                                                    @PathVariable String subscriptionUsername) {
 
         BlogId id = new BlogId(blogId, username);
-        blogOwnershipValidator.validate(id);
+        blogOwnershipValidator.isPrincipalOwner(id);
         BlogId subscriptionId = new BlogId(subscriptionBlogId, subscriptionUsername);
         subscriptionService.deleteSubscription(new SubscriptionId(id, subscriptionId));
         return ResponseEntity.noContent().build();
@@ -65,7 +65,7 @@ class SubscriptionRestEndpoint {
     public ResponseEntity<List<SubscriptionDto>> getSubscriptions(@PathVariable String blogId,
                                                                   @PathVariable String username) {
         BlogId id = new BlogId(blogId, username);
-        blogOwnershipValidator.validate(id);
+        blogOwnershipValidator.isPrincipalOwner(id);
         List<Subscription> subscriptions = subscriptionService.getAllBlogSubscriptions(id);
         List<SubscriptionDto> subscriberDtos = subscriptions
                 .stream()
@@ -79,7 +79,7 @@ class SubscriptionRestEndpoint {
     public ResponseEntity<List<SubscriberDto>> getSubscribers(@PathVariable String blogId,
                                                               @PathVariable String username) {
         BlogId id = new BlogId(blogId, username);
-        blogOwnershipValidator.validate(id);
+        blogOwnershipValidator.isPrincipalOwner(id);
         List<Subscription> subscriptions = subscriptionService.getAllBlogSubscribers(id);
         List<SubscriberDto> subscriberDtos = subscriptions.stream()
                 .map(subscription -> new SubscriberDto(

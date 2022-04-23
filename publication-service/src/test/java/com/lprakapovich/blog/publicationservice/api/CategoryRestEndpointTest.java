@@ -5,39 +5,37 @@ import com.lprakapovich.blog.publicationservice.api.dto.CreateCategoryDto;
 import com.lprakapovich.blog.publicationservice.exception.BlogNotFoundException;
 import com.lprakapovich.blog.publicationservice.exception.CategoryNotFoundException;
 import com.lprakapovich.blog.publicationservice.exception.PrincipalMismatchException;
-import com.lprakapovich.blog.publicationservice.exception.handler.GlobalExceptionHandler;
 import com.lprakapovich.blog.publicationservice.feign.AuthorizationClient;
 import com.lprakapovich.blog.publicationservice.model.Blog.BlogId;
-import com.lprakapovich.blog.publicationservice.security.JwtAuthorizationFilter;
 import com.lprakapovich.blog.publicationservice.service.CategoryService;
 import com.lprakapovich.blog.publicationservice.util.BlogOwnershipValidator;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
 
 import static com.lprakapovich.blog.publicationservice.util.AuthenticationMockUtils.*;
 import static com.lprakapovich.blog.publicationservice.util.BlogUtil.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = CategoryRestEndpoint.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CategoryRestEndpointTest {
+
+    @Autowired
+    private MockMvc mockMvc;
 
     @MockBean
     private CategoryService categoryService;
@@ -49,27 +47,12 @@ class CategoryRestEndpointTest {
     private AuthorizationClient authorizationClient;
 
     @Autowired
-    private GlobalExceptionHandler exceptionHandler;
-
-    @Autowired
-    private JwtAuthorizationFilter jwtAuthFilter;
-
-    @Autowired
     private ObjectMapper mapper;
 
-    private CategoryRestEndpoint categoryRestEndpoint;
-
-    @BeforeAll
-    void init() {
-        categoryRestEndpoint = new CategoryRestEndpoint(
-                categoryService,
-                blogOwnershipValidator
-        );
-    }
 
     @BeforeEach
     void setUp() {
-        mockSuccessfulTokenValidation(authorizationClient);
+        mockTokenValidationWithDefaultPrincipal(authorizationClient);
     }
 
     @Test
@@ -82,13 +65,10 @@ class CategoryRestEndpointTest {
         dto.setName(expectedCategoryName);
 
         // when
-        standaloneSetup(categoryRestEndpoint)
-                .addFilter(jwtAuthFilter)
-                .build()
-                .perform(post("/publication-service/{blogId},{username}/categories", BLOG_ID, USERNAME)
-                        .header(AUTH_HEADER, TOKEN)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(dto)))
+        mockMvc.perform(post("/publication-service/{blogId},{username}/categories", BLOG_ID, DEFAULT_PRINCIPAL)
+                .header(AUTHORIZATION, TOKEN)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(dto)))
                 .andDo(print())
                 .andExpect(status().isOk());
 
@@ -105,13 +85,10 @@ class CategoryRestEndpointTest {
         CreateCategoryDto dto = new CreateCategoryDto();
 
         // when
-        standaloneSetup(categoryRestEndpoint)
-                .addFilter(jwtAuthFilter)
-                .build()
-                .perform(post("/publication-service/{blogId},{username}/categories", BLOG_ID, USERNAME)
-                        .header(AUTH_HEADER, TOKEN)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(dto)))
+        mockMvc.perform(post("/publication-service/{blogId},{username}/categories", BLOG_ID, DEFAULT_PRINCIPAL)
+                .header(AUTHORIZATION, TOKEN)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(dto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
 
@@ -125,17 +102,13 @@ class CategoryRestEndpointTest {
         // given
         CreateCategoryDto dto = new CreateCategoryDto();
         dto.setName("name");
-        doThrow(new PrincipalMismatchException()).when(blogOwnershipValidator).validate(any());
+        doThrow(new PrincipalMismatchException()).when(blogOwnershipValidator).isPrincipalOwner(any());
 
         // when
-        standaloneSetup(categoryRestEndpoint)
-                .addFilter(jwtAuthFilter)
-                .setControllerAdvice(exceptionHandler)
-                .build()
-                .perform(post("/publication-service/{blogId},{username}/categories", BLOG_ID, USERNAME)
-                        .header(AUTH_HEADER, TOKEN)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(dto)))
+        mockMvc.perform(post("/publication-service/{blogId},{username}/categories", BLOG_ID, DEFAULT_PRINCIPAL)
+                .header(AUTHORIZATION, TOKEN)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(dto)))
                 .andDo(print())
                 .andExpect(status().isForbidden());
 
@@ -151,13 +124,8 @@ class CategoryRestEndpointTest {
         BlogId expectedBlogId = getDefaultBlogId();
 
         // when
-        standaloneSetup(categoryRestEndpoint)
-                .addFilter(jwtAuthFilter)
-                .setControllerAdvice(exceptionHandler)
-                .build()
-                .perform(delete("/publication-service/{blogId},{username}/categories/{id}",
-                        BLOG_ID, USERNAME, categoryId)
-                        .header(AUTH_HEADER, TOKEN))
+        mockMvc.perform(delete("/publication-service/{blogId},{username}/categories/{id}",BLOG_ID, DEFAULT_PRINCIPAL, categoryId)
+                .header(AUTHORIZATION, TOKEN))
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
@@ -171,16 +139,11 @@ class CategoryRestEndpointTest {
         // given
         long categoryId = 1L;
         BlogId expectedBlogId = getDefaultBlogId();
-        doThrow(new PrincipalMismatchException()).when(blogOwnershipValidator).validate(any());
+        doThrow(new PrincipalMismatchException()).when(blogOwnershipValidator).isPrincipalOwner(any());
 
         // when
-        standaloneSetup(categoryRestEndpoint)
-                .addFilter(jwtAuthFilter)
-                .setControllerAdvice(exceptionHandler)
-                .build()
-                .perform(delete("/publication-service/{blogId},{username}/categories/{id}",
-                        BLOG_ID, USERNAME, categoryId)
-                    .header(AUTH_HEADER, TOKEN))
+        mockMvc.perform(delete("/publication-service/{blogId},{username}/categories/{id}", BLOG_ID, DEFAULT_PRINCIPAL, categoryId)
+                .header(AUTHORIZATION, TOKEN))
                 .andDo(print())
                 .andExpect(status().isForbidden());
 
@@ -198,13 +161,8 @@ class CategoryRestEndpointTest {
 
         // when
         // then
-        standaloneSetup(categoryRestEndpoint)
-                .addFilter(jwtAuthFilter)
-                .setControllerAdvice(exceptionHandler)
-                .build()
-                .perform(delete("/publication-service/{blogId},{username}/categories/{id}",
-                        BLOG_ID, USERNAME, categoryId)
-                        .header(AUTH_HEADER, TOKEN))
+        mockMvc.perform(delete("/publication-service/{blogId},{username}/categories/{id}", BLOG_ID, DEFAULT_PRINCIPAL, categoryId)
+                .header(AUTHORIZATION, TOKEN))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -219,13 +177,8 @@ class CategoryRestEndpointTest {
 
         // when
         // then
-        standaloneSetup(categoryRestEndpoint)
-                .addFilter(jwtAuthFilter)
-                .setControllerAdvice(exceptionHandler)
-                .build()
-                .perform(delete("/publication-service/{blogId},{username}/categories/{id}",
-                        BLOG_ID, USERNAME, categoryId)
-                        .header(AUTH_HEADER, TOKEN))
+        mockMvc.perform(delete("/publication-service/{blogId},{username}/categories/{id}", BLOG_ID, DEFAULT_PRINCIPAL, categoryId)
+                .header(AUTHORIZATION, TOKEN))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }

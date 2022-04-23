@@ -15,7 +15,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static com.lprakapovich.blog.publicationservice.model.Blog.BlogId;
-import static com.lprakapovich.blog.publicationservice.util.BlogUtil.USERNAME;
+import static com.lprakapovich.blog.publicationservice.util.AuthenticationMockUtils.DEFAULT_PRINCIPAL;
 import static com.lprakapovich.blog.publicationservice.util.BlogUtil.getBlogId;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -37,10 +37,10 @@ class SubscriptionServiceTest {
 
         // given
         try (MockedStatic<AuthenticatedUserResolver> resolver = Mockito.mockStatic(AuthenticatedUserResolver.class)) {
-            resolver.when(AuthenticatedUserResolver::resolveUsernameFromPrincipal).thenReturn(USERNAME);
+            resolver.when(AuthenticatedUserResolver::resolveUsernameFromPrincipal).thenReturn(DEFAULT_PRINCIPAL);
 
-            BlogId subscriber = getBlogId("blog1", USERNAME);
-            BlogId subscription = getBlogId("blog2", USERNAME);
+            BlogId subscriber = getBlogId("blog1", DEFAULT_PRINCIPAL);
+            BlogId subscription = getBlogId("blog2", DEFAULT_PRINCIPAL);
             Subscription invalidSubscription = new Subscription(subscriber, subscription);
 
             // when

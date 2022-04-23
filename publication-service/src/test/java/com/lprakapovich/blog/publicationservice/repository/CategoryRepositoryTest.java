@@ -3,6 +3,7 @@ package com.lprakapovich.blog.publicationservice.repository;
 import com.lprakapovich.blog.publicationservice.exception.BlogNotFoundException;
 import com.lprakapovich.blog.publicationservice.model.Blog;
 import com.lprakapovich.blog.publicationservice.model.Category;
+import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -10,8 +11,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import javax.validation.ConstraintViolationException;
 import java.util.List;
 
+import static com.lprakapovich.blog.publicationservice.util.AuthenticationMockUtils.DEFAULT_PRINCIPAL;
 import static com.lprakapovich.blog.publicationservice.util.BlogUtil.BLOG_ID;
-import static com.lprakapovich.blog.publicationservice.util.BlogUtil.USERNAME;
+import static io.zonky.test.db.AutoConfigureEmbeddedDatabase.DatabaseProvider.ZONKY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 
 @DataJpaTest
+@AutoConfigureEmbeddedDatabase(provider = ZONKY)
 class CategoryRepositoryTest {
 
     @Autowired
@@ -79,7 +82,7 @@ class CategoryRepositoryTest {
         categoryRepository.save(category);
 
         // then
-        assertTrue(categoryRepository.existsByNameAndBlogId(DEFAULT_NAME, BLOG_ID, USERNAME));
+        assertTrue(categoryRepository.existsByNameAndBlogId(DEFAULT_NAME, BLOG_ID, DEFAULT_PRINCIPAL));
     }
 
     @Test
@@ -88,7 +91,7 @@ class CategoryRepositoryTest {
         // given
         // when
         // then
-        assertFalse(categoryRepository.existsByNameAndBlogId(DEFAULT_NAME, BLOG_ID, USERNAME));
+        assertFalse(categoryRepository.existsByNameAndBlogId(DEFAULT_NAME, BLOG_ID, DEFAULT_PRINCIPAL));
     }
 
     @Test
@@ -99,7 +102,7 @@ class CategoryRepositoryTest {
 
         // when
         // then
-        assertThat(categoryRepository.findByBlogId(BLOG_ID, USERNAME)).isEmpty();
+        assertThat(categoryRepository.findByBlogId(BLOG_ID, DEFAULT_PRINCIPAL)).isEmpty();
     }
 
     @Test
@@ -113,7 +116,7 @@ class CategoryRepositoryTest {
 
         // when
         // then
-        List<Category> categories = categoryRepository.findByBlogId(BLOG_ID, USERNAME);
+        List<Category> categories = categoryRepository.findByBlogId(BLOG_ID, DEFAULT_PRINCIPAL);
         assertThat(categories)
                 .isNotEmpty()
                 .containsExactly(category1, category2);
@@ -135,12 +138,12 @@ class CategoryRepositoryTest {
 
     private void createBlogDefaultInstance() {
         Blog blog = new Blog();
-        blog.setId(new Blog.BlogId(BLOG_ID, USERNAME));
+        blog.setId(new Blog.BlogId(BLOG_ID, DEFAULT_PRINCIPAL));
         blogRepository.save(blog);
     }
 
     private Blog getBlogDefaultInstance() {
-        return blogRepository.findById(new Blog.BlogId(BLOG_ID, USERNAME))
+        return blogRepository.findById(new Blog.BlogId(BLOG_ID, DEFAULT_PRINCIPAL))
                 .orElseThrow(BlogNotFoundException::new);
     }
 }

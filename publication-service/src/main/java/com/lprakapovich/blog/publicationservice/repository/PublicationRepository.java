@@ -15,6 +15,8 @@ public interface PublicationRepository extends PagingAndSortingRepository<Public
 
     Optional<Publication> findByIdAndBlog_IdAndStatus(long publicationId, BlogId blogId, Status status);
 
+    List<Publication> findByBlog_Id(BlogId blogId);
+
     List<Publication> findAllByBlog_Id(BlogId blogId, Pageable pageable);
 
     List<Publication> findAllByBlog_IdInAndStatus(List<BlogId> ids, Status status, Pageable pageable);

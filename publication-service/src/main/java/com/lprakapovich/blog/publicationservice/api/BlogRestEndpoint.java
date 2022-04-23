@@ -1,10 +1,10 @@
 package com.lprakapovich.blog.publicationservice.api;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lprakapovich.blog.publicationservice.api.dto.BlogDto;
 import com.lprakapovich.blog.publicationservice.api.dto.BlogViewDto;
 import com.lprakapovich.blog.publicationservice.api.dto.CreateBlogDto;
 import com.lprakapovich.blog.publicationservice.api.dto.UpdateBlogDto;
+import com.lprakapovich.blog.publicationservice.api.dto.utils.GenericMappingUtils;
 import com.lprakapovich.blog.publicationservice.model.Blog;
 import com.lprakapovich.blog.publicationservice.model.Blog.BlogId;
 import com.lprakapovich.blog.publicationservice.model.Category;
@@ -25,8 +25,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.lprakapovich.blog.publicationservice.api.dto.utils.DtoMappingUtils.map;
-import static com.lprakapovich.blog.publicationservice.api.dto.utils.DtoMappingUtils.mapBlogs;
 import static com.lprakapovich.blog.publicationservice.util.AuthenticatedUserResolver.resolveUsernameFromPrincipal;
 
 @Controller
@@ -38,6 +36,8 @@ class BlogRestEndpoint {
     private final CategoryService categoryService;
     private final SubscriptionService subscriptionService;
     private final BlogOwnershipValidator blogOwnershipValidator;
+    private final GenericMappingUtils mappingUtils;
+
 
     @PostMapping
     public ResponseEntity<URI> createBlog(@RequestBody @Valid CreateBlogDto blogDto) {
@@ -51,15 +51,15 @@ class BlogRestEndpoint {
     @PutMapping("/{id},{username}")
     public ResponseEntity<BlogDto> updateBlog(@PathVariable String id,
                                               @PathVariable String username,
-                                              @RequestBody UpdateBlogDto blogDto) {
+                                              @RequestBody @Valid UpdateBlogDto blogDto) {
         BlogId blogId = new BlogId(id, username);
-        blogOwnershipValidator.validate(blogId);
+        blogOwnershipValidator.isPrincipalOwner(blogId);
         Blog updated = Blog.builder()
                 .description(blogDto.getDescription())
                 .displayName(blogDto.getDisplayName())
                 .build();
         Blog updatedBlog = blogService.updateBlog(blogId, updated);
-        return ResponseEntity.ok(map(updatedBlog));
+        return ResponseEntity.ok(mappingUtils.map(updatedBlog, BlogDto.class));
     }
 
     @DeleteMapping("/{id},{username}")
@@ -67,7 +67,7 @@ class BlogRestEndpoint {
                                            @PathVariable String username) {
 
         BlogId blogId = new BlogId(id, username);
-        blogOwnershipValidator.validate(blogId);
+        blogOwnershipValidator.isPrincipalOwner(blogId);
         blogService.deleteBlog(blogId);
         return ResponseEntity.noContent().build();
     }
@@ -75,7 +75,7 @@ class BlogRestEndpoint {
     @GetMapping("/search")
     public ResponseEntity<List<BlogDto>> getBlogsBySearchCriteria(@RequestParam(required = false) String criteria) {
         List<Blog> blogs = blogService.getAllBySearchCriteria(criteria);
-        return ResponseEntity.ok(mapBlogs(blogs));
+        return ResponseEntity.ok(mappingUtils.mapList(blogs, BlogDto.class));
     }
 
     @GetMapping("/owned")

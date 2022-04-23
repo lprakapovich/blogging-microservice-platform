@@ -24,7 +24,7 @@ class CategoryRestEndpoint {
                                               @PathVariable String username,
                                               @Valid @RequestBody CreateCategoryDto categoryDto) {
         BlogId id = new BlogId(blogId, username);
-        blogOwnershipValidator.validate(id);
+        blogOwnershipValidator.isPrincipalOwner(id);
         long createdCategoryId = categoryService.createCategory(id, categoryDto.getName());
         return ResponseEntity.ok().body(createdCategoryId);
     }
@@ -34,7 +34,7 @@ class CategoryRestEndpoint {
                                                @PathVariable String username,
                                                @PathVariable(name = "id") long categoryId) {
         BlogId id = new BlogId(blogId, username);
-        blogOwnershipValidator.validate(id);
+        blogOwnershipValidator.isPrincipalOwner(id);
         categoryService.deleteCategory(id, categoryId);
         return ResponseEntity.noContent().build();
     }
