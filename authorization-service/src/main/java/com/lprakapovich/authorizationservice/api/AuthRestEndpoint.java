@@ -8,7 +8,6 @@ import com.lprakapovich.authorizationservice.feign.UserClient;
 import com.lprakapovich.authorizationservice.jwt.JwtService;
 import com.lprakapovich.authorizationservice.security.ApplicationPasswordEncoder;
 import com.lprakapovich.authorizationservice.service.AuthenticationService;
-import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,13 +27,6 @@ public class AuthRestEndpoint {
     private final JwtService jwtService;
     private final ApplicationPasswordEncoder passwordEncoder;
 
-    @PostMapping("/login")
-    public ResponseEntity<AuthDto> login(@Valid @RequestBody LoginDto request) {
-        authenticationService.authenticate(request.getUsername(), request.getPassword());
-        String token = jwtService.generateToken(request.getUsername());
-        return ResponseEntity.ok(new AuthDto(token));
-    }
-
     @PostMapping(value = "/register")
     public ResponseEntity<AuthDto> register(@Valid @RequestBody RegisterDto request) {
         request.setPassword(encrypt(request.getPassword()));
@@ -43,6 +35,13 @@ public class AuthRestEndpoint {
         String token = jwtService.generateToken(request.getUsername());
         assert createdResourceLocation != null;
         return ResponseEntity.created(createdResourceLocation).body(new AuthDto(token));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthDto> login(@Valid @RequestBody LoginDto request) {
+        authenticationService.authenticate(request.getUsername(), request.getPassword());
+        String token = jwtService.generateToken(request.getUsername());
+        return ResponseEntity.ok(new AuthDto(token));
     }
 
     @PostMapping("/validate")
