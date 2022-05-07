@@ -5,7 +5,7 @@ import com.lprakapovich.blog.publicationservice.api.dto.CreateCategoryDto;
 import com.lprakapovich.blog.publicationservice.exception.BlogNotFoundException;
 import com.lprakapovich.blog.publicationservice.exception.CategoryNotFoundException;
 import com.lprakapovich.blog.publicationservice.exception.PrincipalMismatchException;
-import com.lprakapovich.blog.publicationservice.feign.AuthorizationClient;
+import com.lprakapovich.blog.publicationservice.feign.AuthenticationServerClient;
 import com.lprakapovich.blog.publicationservice.model.Blog.BlogId;
 import com.lprakapovich.blog.publicationservice.service.CategoryService;
 import com.lprakapovich.blog.publicationservice.util.BlogOwnershipValidator;
@@ -44,7 +44,7 @@ class CategoryRestEndpointTest {
     private BlogOwnershipValidator blogOwnershipValidator;
 
     @MockBean
-    private AuthorizationClient authorizationClient;
+    private AuthenticationServerClient authorizationClient;
 
     @Autowired
     private ObjectMapper mapper;

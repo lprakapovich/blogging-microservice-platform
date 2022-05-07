@@ -4,6 +4,7 @@ import com.lprakapovich.blog.publicationservice.exception.BlogNotFoundException;
 import com.lprakapovich.blog.publicationservice.exception.DuplicatedBlogIdException;
 import com.lprakapovich.blog.publicationservice.model.Blog;
 import com.lprakapovich.blog.publicationservice.model.Blog.BlogId;
+import com.lprakapovich.blog.publicationservice.model.Status;
 import com.lprakapovich.blog.publicationservice.repository.BlogRepository;
 import com.lprakapovich.blog.publicationservice.repository.CategoryRepository;
 import com.lprakapovich.blog.publicationservice.repository.PublicationRepository;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.List;
 
-import static com.lprakapovich.blog.publicationservice.util.AuthenticatedUserResolver.resolveUsernameFromPrincipal;
+import static com.lprakapovich.blog.publicationservice.util.AuthenticatedUserResolver.resolvePrincipal;
 
 @Service
 @RequiredArgsConstructor
@@ -50,29 +51,36 @@ public class BlogService {
     }
 
     public List<Blog> getAllByUsername() {
-        String authenticatedUser = resolveUsernameFromPrincipal();
+        String authenticatedUser = resolvePrincipal();
         return blogRepository.findById_Username(authenticatedUser);
     }
 
     public boolean existsById(String id) {
-        String authenticatedUser = resolveUsernameFromPrincipal();
+        String authenticatedUser = resolvePrincipal();
         BlogId blogId = new BlogId(id, authenticatedUser);
         return blogRepository.existsById(blogId);
     }
 
-    public boolean isOwner(String id) {
-        String authenticatedUser = resolveUsernameFromPrincipal();
-        return blogRepository.existsById(new BlogId(id, authenticatedUser));
+    public boolean isOwner(String blogId) {
+        String authenticatedUser = resolvePrincipal();
+        return blogRepository.existsById(new BlogId(blogId, authenticatedUser));
     }
 
-    public void checkExistence(BlogId id) {
-        if (!blogRepository.existsById(id)) {
+    public void checkExistence(BlogId blogId) {
+        if (!blogRepository.existsById(blogId)) {
             throw new BlogNotFoundException();
         }
     }
 
-    public List<Blog> getAllBySearchCriteria(String criteria) {
-        String authenticatedUser = resolveUsernameFromPrincipal();
-        return blogRepository.findByCriteriaExcludingUsername(criteria, authenticatedUser);
+    public List<Blog> getAllBySearchCriteria(String criteria, int page, int pageSize) {
+        String authenticatedUser = resolvePrincipal();
+        int offset = page * pageSize;
+        return blogRepository.findByCriteriaExcludingUsernameAndPageable(criteria, authenticatedUser, pageSize, offset);
+    }
+
+    public int getNumberOfBlogPublications(BlogId blogId) {
+        return isOwner(blogId.getId()) ?
+                publicationRepository.findByBlog_Id(blogId).size() :
+                publicationRepository.findByBlog_IdAndStatus(blogId, Status.PUBLISHED).size();
     }
 }

@@ -17,6 +17,8 @@ public interface PublicationRepository extends PagingAndSortingRepository<Public
 
     List<Publication> findByBlog_Id(BlogId blogId);
 
+    List<Publication> findByBlog_IdAndStatus(BlogId blogId, Status status);
+
     List<Publication> findAllByBlog_Id(BlogId blogId, Pageable pageable);
 
     List<Publication> findAllByBlog_IdInAndStatus(List<BlogId> ids, Status status, Pageable pageable);
@@ -29,7 +31,7 @@ public interface PublicationRepository extends PagingAndSortingRepository<Public
 
     List<Publication> findByCategory_IdAndBlog_Id(long categoryId, BlogId blogId);
 
-    List<Publication> findByStatusAndTitleContainsAndBlog_Id_UsernameNot(Status status, String search, String username);
+    List<Publication> findByStatusAndTitleContainsAndBlog_Id_UsernameNot(Status status, String search, String username, Pageable pageable);
 
     boolean existsByIdAndBlog_Id(long publicationId, BlogId blogId);
 

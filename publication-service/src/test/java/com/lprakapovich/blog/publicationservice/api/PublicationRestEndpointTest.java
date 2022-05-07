@@ -5,7 +5,7 @@ import com.lprakapovich.blog.publicationservice.api.dto.CreatePublicationDto;
 import com.lprakapovich.blog.publicationservice.api.dto.UpdatePublicationDto;
 import com.lprakapovich.blog.publicationservice.api.dto.utils.GenericMappingUtils;
 import com.lprakapovich.blog.publicationservice.exception.PrincipalMismatchException;
-import com.lprakapovich.blog.publicationservice.feign.AuthorizationClient;
+import com.lprakapovich.blog.publicationservice.feign.AuthenticationServerClient;
 import com.lprakapovich.blog.publicationservice.model.Blog.BlogId;
 import com.lprakapovich.blog.publicationservice.model.Status;
 import com.lprakapovich.blog.publicationservice.service.BlogService;
@@ -48,7 +48,7 @@ class PublicationRestEndpointTest {
     private BlogOwnershipValidator blogOwnershipValidator;
 
     @MockBean
-    private AuthorizationClient authorizationClient;
+    private AuthenticationServerClient authorizationClient;
 
     @MockBean
     private GenericMappingUtils mappingUtils;

@@ -3,7 +3,7 @@ package com.lprakapovich.blog.publicationservice.integration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lprakapovich.blog.publicationservice.api.dto.BlogDto;
 import com.lprakapovich.blog.publicationservice.exception.error.ErrorEnvelope;
-import com.lprakapovich.blog.publicationservice.feign.AuthorizationClient;
+import com.lprakapovich.blog.publicationservice.feign.AuthenticationServerClient;
 import com.lprakapovich.blog.publicationservice.model.Blog;
 import com.lprakapovich.blog.publicationservice.model.Publication;
 import com.lprakapovich.blog.publicationservice.model.Status;
@@ -45,7 +45,7 @@ class PublicationIntegrationTest {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private AuthorizationClient authorizationClient;
+    private AuthenticationServerClient authorizationClient;
 
     private static final String PUBLICATION_URL = "/publication-service/{blogId},{username}/publications";
 

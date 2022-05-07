@@ -1,6 +1,5 @@
 package com.lprakapovich.blog.publicationservice.api.dto;
 
-import com.lprakapovich.blog.publicationservice.model.Blog;
 import com.lprakapovich.blog.publicationservice.model.Blog.BlogId;
 import com.lprakapovich.blog.publicationservice.model.Category;
 import com.lprakapovich.blog.publicationservice.model.Subscription;
@@ -21,6 +20,5 @@ public class BlogViewDto {
     private List<Category> categories;
     private List<Subscription> subscriptions;
     private List<Subscription> subscribers;
-//    private int numberOfSubscriptions;
-//    private int numberOfSubscribers;
+    private int numberOfPublications;
 }

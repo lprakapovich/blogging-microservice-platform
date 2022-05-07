@@ -37,7 +37,7 @@ class SubscriptionServiceTest {
 
         // given
         try (MockedStatic<AuthenticatedUserResolver> resolver = Mockito.mockStatic(AuthenticatedUserResolver.class)) {
-            resolver.when(AuthenticatedUserResolver::resolveUsernameFromPrincipal).thenReturn(DEFAULT_PRINCIPAL);
+            resolver.when(AuthenticatedUserResolver::resolvePrincipal).thenReturn(DEFAULT_PRINCIPAL);
 
             BlogId subscriber = getBlogId("blog1", DEFAULT_PRINCIPAL);
             BlogId subscription = getBlogId("blog2", DEFAULT_PRINCIPAL);

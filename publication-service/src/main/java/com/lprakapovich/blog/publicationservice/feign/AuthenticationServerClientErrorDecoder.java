@@ -16,10 +16,12 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
-public class AuthorizationClientErrorDecoder implements ErrorDecoder {
+public class AuthenticationServerClientErrorDecoder implements ErrorDecoder {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    private static final String FEIGN_NULL_RESPONSE_BODY = "Null response body from Feign Client";
 
     @Override
     public Exception decode(String s, Response response) {
@@ -30,10 +32,9 @@ public class AuthorizationClientErrorDecoder implements ErrorDecoder {
                 ErrorEnvelope errorEnvelope = objectMapper.readValue(responseBody, ErrorEnvelope.class);
                 throw new FeignClientException(errorEnvelope.getMessage(), errorEnvelope.getResponseStatus());
             } else {
-                throw new FeignClientException("Something stranhe id gponf on", HttpStatus.BAD_REQUEST);
+                throw new FeignClientException(FEIGN_NULL_RESPONSE_BODY, HttpStatus.BAD_REQUEST);
             }
         } catch (IOException e) {
-
             throw new FeignResponseMappingException();
         }
     }

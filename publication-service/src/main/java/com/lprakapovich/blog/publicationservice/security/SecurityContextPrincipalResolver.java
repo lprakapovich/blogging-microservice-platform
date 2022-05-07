@@ -4,11 +4,11 @@ import com.lprakapovich.blog.publicationservice.exception.SecurityProcessHolderN
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-public class SecurityContextHolderSubjectResolver {
+public class SecurityContextPrincipalResolver {
 
-    private SecurityContextHolderSubjectResolver() {}
+    private SecurityContextPrincipalResolver() {}
 
-    public static String getPrincipalSubject() {
+    public static String getPrincipal() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             return authentication.getName();

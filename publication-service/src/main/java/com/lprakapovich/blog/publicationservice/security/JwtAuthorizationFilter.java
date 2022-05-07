@@ -1,6 +1,6 @@
 package com.lprakapovich.blog.publicationservice.security;
 
-import com.lprakapovich.blog.publicationservice.feign.AuthorizationClient;
+import com.lprakapovich.blog.publicationservice.feign.AuthenticationServerClient;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -24,7 +24,7 @@ import java.util.ArrayList;
 @RequiredArgsConstructor
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
-    private final AuthorizationClient authorizationClient;
+    private final AuthenticationServerClient authenticationServerClient;
 
     private static final String AUTH_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
@@ -38,9 +38,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         try {
             if (authHeaderIsPresent(request)) {
                 String token = getTokenFromRequest(request);
-                ResponseEntity<String> responseEntity = authorizationClient.validateToken(token);
+                ResponseEntity<String> responseEntity = authenticationServerClient.validateToken(token);
                 if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
-                    setAuthentication(responseEntity.getBody());
+                    String principal = responseEntity.getBody();
+                    setAuthentication(principal);
                 } else {
                     log.error(JWT_VALIDATION_FAILED);
                     response.setStatus(HttpServletResponse.SC_FORBIDDEN);

@@ -36,6 +36,7 @@ class PublicationRestEndpoint {
     private final GenericMappingUtils mappingUtils;
 
     private static final String CREATED_DATETIME_FIELD = "createdDateTime";
+    private static final String UPDATED_DATETIME_FIELD = "updatedDateTime";
 
     @PostMapping
     public ResponseEntity<PublicationDto> createPublication(@PathVariable String blogId,
@@ -78,7 +79,7 @@ class PublicationRestEndpoint {
                                                                 @RequestParam(required = false) Status status,
                                                                 @RequestParam(required = false) Long categoryId) {
 
-        PageRequest pageable = PageRequest.of(page, size, Sort.by(CREATED_DATETIME_FIELD).descending());
+        PageRequest pageable = PageRequest.of(page, size, Sort.by(CREATED_DATETIME_FIELD, UPDATED_DATETIME_FIELD).descending());
         List<Publication> publications;
 
         boolean isCategorySpecified = Objects.nonNull(categoryId) ;
@@ -130,8 +131,12 @@ class PublicationRestEndpoint {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<PublicationDto>> getPublicationsBySearchCriteria(@RequestParam(required = false) String criteria) {
-        List<Publication> publications = publicationService.getPublicationsBySearchCriteria(criteria);
+    public ResponseEntity<List<PublicationDto>> getPublicationsBySearchCriteria(@RequestParam(required = false) String criteria,
+                                                                                @RequestParam(defaultValue = DEFAULT_PAGE_NUMBER) int page,
+                                                                                @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int size) {
+
+        PageRequest pageable = PageRequest.of(page, size);
+        List<Publication> publications = publicationService.getPublicationsBySearchCriteria(criteria, pageable);
         return ResponseEntity.ok(mappingUtils.mapList(publications, PublicationDto.class));
     }
 

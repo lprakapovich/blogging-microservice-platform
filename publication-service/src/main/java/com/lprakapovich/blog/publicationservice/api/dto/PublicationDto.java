@@ -28,7 +28,7 @@ public class PublicationDto {
     private LocalDateTime createdDateTime;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-    private LocalDateTime lastUpdatedDateTime;
+    private LocalDateTime updatedDateTime;
 
     private BlogDto blog;
 }

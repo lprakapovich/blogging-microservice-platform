@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com.lprakapovich.blog.publicationservice.util.AuthenticatedUserResolver.resolveUsernameFromPrincipal;
+import static com.lprakapovich.blog.publicationservice.util.AuthenticatedUserResolver.resolvePrincipal;
 
 @Service
 @RequiredArgsConstructor
@@ -44,7 +44,7 @@ public class SubscriptionService {
     }
 
     private void checkSubscriptionTarget(Subscription subscription) {
-        String authenticatedUser = resolveUsernameFromPrincipal();
+        String authenticatedUser = resolvePrincipal();
         if (authenticatedUser.equals(subscription.getId().getSubscription().getUsername())) {
             throw new InvalidSubscriptionException();
         }

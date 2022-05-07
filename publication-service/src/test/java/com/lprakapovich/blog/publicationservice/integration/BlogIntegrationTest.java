@@ -3,7 +3,7 @@ package com.lprakapovich.blog.publicationservice.integration;
 import com.lprakapovich.blog.publicationservice.api.dto.BlogDto;
 import com.lprakapovich.blog.publicationservice.api.dto.CreateBlogDto;
 import com.lprakapovich.blog.publicationservice.api.dto.UpdateBlogDto;
-import com.lprakapovich.blog.publicationservice.feign.AuthorizationClient;
+import com.lprakapovich.blog.publicationservice.feign.AuthenticationServerClient;
 import com.lprakapovich.blog.publicationservice.model.Blog;
 import com.lprakapovich.blog.publicationservice.model.Blog.BlogId;
 import com.lprakapovich.blog.publicationservice.model.Category;
@@ -14,7 +14,6 @@ import com.lprakapovich.blog.publicationservice.repository.PublicationRepository
 import com.lprakapovich.blog.publicationservice.util.UriBuilder;
 import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -52,7 +51,7 @@ class BlogIntegrationTest {
     private PublicationRepository publicationRepository;
 
     @MockBean
-    private AuthorizationClient authorizationClient;
+    private AuthenticationServerClient authenticationServerClient;
 
     private static final String BLOG_URL = "/publication-service/blogs";
 
@@ -60,7 +59,7 @@ class BlogIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        mockTokenValidationWithDefaultPrincipal(authorizationClient);
+        mockTokenValidationWithDefaultPrincipal(authenticationServerClient);
     }
 
     @Test

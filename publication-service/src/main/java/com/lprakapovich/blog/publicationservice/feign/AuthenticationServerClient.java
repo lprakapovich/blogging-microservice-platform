@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.*;
  * Declarative API for authorization service used instead of RestTemplate
  */
 
-@FeignClient(name = "authorization-service", url = "http://localhost:9090", configuration = AuthorizationClientConfiguration.class)
-public interface AuthorizationClient {
+@FeignClient(name = "authorization-service", url = "http://localhost:9090", configuration = AuthenticationServerClientConfiguration.class)
+public interface AuthenticationServerClient {
 
     @PostMapping("/auth-service/validate")
     ResponseEntity<String> validateToken(@RequestParam String token);

@@ -4,10 +4,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class AuthorizationClientConfiguration {
+public class AuthenticationServerClientConfiguration {
 
     @Bean
-    public AuthorizationClientErrorDecoder userClientErrorDecoder() {
-        return new AuthorizationClientErrorDecoder();
+    public AuthenticationServerClientErrorDecoder userClientErrorDecoder() {
+        return new AuthenticationServerClientErrorDecoder();
     }
 }

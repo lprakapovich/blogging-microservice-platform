@@ -25,7 +25,9 @@ import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.lprakapovich.blog.publicationservice.util.AuthenticatedUserResolver.resolveUsernameFromPrincipal;
+import static com.lprakapovich.blog.publicationservice.api.paging.PageableDefaultValues.DEFAULT_PAGE_NUMBER;
+import static com.lprakapovich.blog.publicationservice.api.paging.PageableDefaultValues.DEFAULT_PAGE_SIZE;
+import static com.lprakapovich.blog.publicationservice.util.AuthenticatedUserResolver.resolvePrincipal;
 
 @Controller
 @RequestMapping("/publication-service/blogs")
@@ -41,7 +43,7 @@ class BlogRestEndpoint {
 
     @PostMapping
     public ResponseEntity<URI> createBlog(@RequestBody @Valid CreateBlogDto blogDto) {
-        BlogId blogId = new BlogId(blogDto.getId(), resolveUsernameFromPrincipal());
+        BlogId blogId = new BlogId(blogDto.getId(), resolvePrincipal());
         Blog blog = Blog.builder().id(blogId).build();
         BlogId created = blogService.createBlog(blog);
         URI uri = UriBuilder.build(created.getId(), created.getUsername());
@@ -73,8 +75,10 @@ class BlogRestEndpoint {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<BlogDto>> getBlogsBySearchCriteria(@RequestParam(required = false) String criteria) {
-        List<Blog> blogs = blogService.getAllBySearchCriteria(criteria);
+    public ResponseEntity<List<BlogDto>> getBlogsBySearchCriteria(@RequestParam(required = false) String criteria,
+                                                                  @RequestParam(defaultValue = DEFAULT_PAGE_NUMBER) int page,
+                                                                  @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int size) {
+        List<Blog> blogs = blogService.getAllBySearchCriteria(criteria, page, size);
         return ResponseEntity.ok(mappingUtils.mapList(blogs, BlogDto.class));
     }
 
@@ -105,13 +109,15 @@ class BlogRestEndpoint {
         List<Category> categories = categoryService.getByBlogId(blogId);
         List<Subscription> subscribers = subscriptionService.getAllBlogSubscribers(blogId);
         List<Subscription> subscriptions = subscriptionService.getAllBlogSubscriptions(blogId);
+        int numberOfPublications = blogService.getNumberOfBlogPublications(blogId);
         return new BlogViewDto(
                 blog.getId(),
                 blog.getDisplayName(),
                 blog.getDescription(),
                 categories,
                 subscriptions,
-                subscribers
+                subscribers,
+                numberOfPublications
         );
     }
 }

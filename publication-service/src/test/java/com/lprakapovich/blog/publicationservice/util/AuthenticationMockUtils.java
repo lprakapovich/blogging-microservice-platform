@@ -1,6 +1,6 @@
 package com.lprakapovich.blog.publicationservice.util;
 
-import com.lprakapovich.blog.publicationservice.feign.AuthorizationClient;
+import com.lprakapovich.blog.publicationservice.feign.AuthenticationServerClient;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 
@@ -12,7 +12,7 @@ public class AuthenticationMockUtils {
     public static final String TOKEN = "Bearer mockToken";
     public static final String DEFAULT_PRINCIPAL = "principal";
 
-    public static void mockTokenValidationWithDefaultPrincipal(AuthorizationClient client) {
+    public static void mockTokenValidationWithDefaultPrincipal(AuthenticationServerClient client) {
         ResponseEntity<String> success = ResponseEntity.ok(DEFAULT_PRINCIPAL);
         given(client.validateToken(anyString())).willReturn(success);
     }

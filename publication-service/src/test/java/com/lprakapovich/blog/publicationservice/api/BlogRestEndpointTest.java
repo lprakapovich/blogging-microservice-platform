@@ -6,7 +6,7 @@ import com.lprakapovich.blog.publicationservice.api.dto.UpdateBlogDto;
 import com.lprakapovich.blog.publicationservice.api.dto.utils.GenericMappingUtils;
 import com.lprakapovich.blog.publicationservice.exception.BlogNotFoundException;
 import com.lprakapovich.blog.publicationservice.exception.PrincipalMismatchException;
-import com.lprakapovich.blog.publicationservice.feign.AuthorizationClient;
+import com.lprakapovich.blog.publicationservice.feign.AuthenticationServerClient;
 import com.lprakapovich.blog.publicationservice.service.BlogService;
 import com.lprakapovich.blog.publicationservice.service.CategoryService;
 import com.lprakapovich.blog.publicationservice.service.SubscriptionService;
@@ -59,7 +59,7 @@ class BlogRestEndpointTest {
     private GenericMappingUtils mappingUtils;
 
     @MockBean
-    private AuthorizationClient authorizationClient;
+    private AuthenticationServerClient authorizationClient;
 
     @Autowired
     private ObjectMapper mapper;

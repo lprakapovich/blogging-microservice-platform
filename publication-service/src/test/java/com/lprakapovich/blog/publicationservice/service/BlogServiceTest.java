@@ -149,7 +149,7 @@ class BlogServiceTest {
     void whenGettingByUsername_returnsProperList() {
         // given
         try (MockedStatic<AuthenticatedUserResolver> resolver = Mockito.mockStatic(AuthenticatedUserResolver.class)) {
-            resolver.when(AuthenticatedUserResolver::resolveUsernameFromPrincipal).thenReturn(DEFAULT_PRINCIPAL);
+            resolver.when(AuthenticatedUserResolver::resolvePrincipal).thenReturn(DEFAULT_PRINCIPAL);
 
             Blog defaultBlog = getDefaultBlog();
             given(blogRepository.findById_Username(DEFAULT_PRINCIPAL)).willReturn(List.of(defaultBlog));
@@ -165,7 +165,7 @@ class BlogServiceTest {
     @Test
     void whenGettingByUsername_returnsEmptyList() {
         try (MockedStatic<AuthenticatedUserResolver> resolver = Mockito.mockStatic(AuthenticatedUserResolver.class)) {
-            resolver.when(AuthenticatedUserResolver::resolveUsernameFromPrincipal).thenReturn(DEFAULT_PRINCIPAL);
+            resolver.when(AuthenticatedUserResolver::resolvePrincipal).thenReturn(DEFAULT_PRINCIPAL);
 
             given(blogRepository.findById_Username(DEFAULT_PRINCIPAL)).willReturn(Collections.emptyList());
 
