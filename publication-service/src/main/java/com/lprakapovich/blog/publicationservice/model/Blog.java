@@ -26,11 +26,25 @@ public class Blog extends AuditableEntity {
     @OneToMany(mappedBy = "blog")
     private List<Category> categories = new ArrayList<>();
 
+    @Override
+    public boolean equals(Object o) {
+
+        if (o == this)
+            return true;
+
+        if (!(o instanceof Blog))
+            return false;
+
+        Blog other = (Blog) o;
+        return other.getId().equals(id);
+    }
+
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
     @Embeddable
     @EqualsAndHashCode
+    @ToString
     public static class BlogId implements Serializable {
 
         @Column(name = "blog_id", nullable = false)
