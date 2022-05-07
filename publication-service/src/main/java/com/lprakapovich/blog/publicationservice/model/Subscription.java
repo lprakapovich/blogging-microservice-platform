@@ -1,9 +1,7 @@
 package com.lprakapovich.blog.publicationservice.model;
 
 import com.lprakapovich.blog.publicationservice.model.Blog.BlogId;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -21,9 +19,24 @@ public class Subscription {
         this.id = new SubscriptionId(subscriber, subscription);
     }
 
+    @Override
+    public boolean equals(Object o) {
+
+        if (o == this)
+            return true;
+
+        if (!(o instanceof Subscription))
+            return false;
+
+        Subscription other = (Subscription) o;
+        return other.getId().equals(id);
+    }
+
     @Embeddable
     @Getter
     @Data
+    @EqualsAndHashCode
+    @ToString
     public static class SubscriptionId implements Serializable {
 
         @AttributeOverride(name="id", column= @Column(name="subscriberBlogId"))
