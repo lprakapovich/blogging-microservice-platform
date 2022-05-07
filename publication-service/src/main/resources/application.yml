@@ -9,10 +9,6 @@ spring:
     url: jdbc:postgresql://localhost:5432/publication_service
     username: lprakapovich
     password: lprakapovich
-  kafka:
-    bootstrap-servers: localhost:9092
-    consumer:
-      group-id: lprakapovich-group
 
 server:
   port: 9094
