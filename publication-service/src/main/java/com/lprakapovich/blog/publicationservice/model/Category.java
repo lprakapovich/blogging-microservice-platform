@@ -9,8 +9,9 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "categories", uniqueConstraints =
-        { @UniqueConstraint(columnNames = { "name", "blog_id", "username" }) })
+@Table(name = "categories",
+        uniqueConstraints = { @UniqueConstraint(columnNames = { "name", "blog_id", "username" }) },
+        indexes = @Index(columnList = "name", name = "name"))
 @Data
 @NoArgsConstructor
 public class Category {
