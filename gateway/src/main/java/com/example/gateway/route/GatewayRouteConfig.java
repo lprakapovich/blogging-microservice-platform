@@ -7,18 +7,30 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class GatewayRouteConfig {
+
+    private static final String ALL = "/**";
+
+    private static final String AUTH_SERVER_PATH = "/auth-service" + ALL;
+    private static final String AUTH_SERVER_URI = "http://localhost:9090";
+
+    private static final String USER_SERVICE_PATH = "/user-service" + ALL;
+    private static final String USER_SERVICE_URI = "http://localhost:9091";
+
+    private static final String PUBLICATION_SERVICE_PATH = "/publication-service" + ALL;
+    private static final String PUBLICATION_SERVICE_URI = "http://localhost:9094";
+
     @Bean
     public RouteLocator myRoutes(RouteLocatorBuilder builder) {
         return builder.routes()
                 .route(p -> p
-                        .path("/auth-service/**")
-                        .uri("http://localhost:9090"))
+                        .path(AUTH_SERVER_PATH)
+                        .uri(AUTH_SERVER_URI))
                 .route(p -> p
-                        .path("/user-service/**")
-                        .uri("http://localhost:9091"))
+                        .path(USER_SERVICE_PATH)
+                        .uri(USER_SERVICE_URI))
                 .route(p -> p
-                        .path("/publication-service/**")
-                        .uri("http://localhost:9094"))
+                        .path(PUBLICATION_SERVICE_PATH)
+                        .uri(PUBLICATION_SERVICE_URI))
                 .build();
     }
 }
